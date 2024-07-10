@@ -1,26 +1,22 @@
 #!/usr/local/bin/Rscript
-.libPaths(c(
-  "/home/cwolock/R_lib",
-  .libPaths()
-))
-suppressMessages(library(dplyr))
+library(dplyr)
 
 sim_name <- "icenReg_bootstrap"
 nreps_total <- 1000
-nreps_per_job <- 1
+nreps_per_job <- 5
 
-source("/home/cwolock/chu_lab/susan/code/bootstrap_testing/do_one.R")
+source("/home/cwolock/currstat_CIR_supplementary/sims/bootstrap_testing/do_one.R")
 
 ns <- c(500, 1000, 1500, 2000)
 Bs <- c(100, 250, 500, 1000)
-nonresponses <- c(FALSE, TRUE)
+missing_bounds <- c(1.65,1.8, 2.1)
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
 param_grid <- expand.grid(mc_id = 1:njobs_per_combo,
                           n = ns,
                           B = Bs,
-                          nonresponse = nonresponses)
+                          missing_bound = missing_bounds)
 
 job_id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
@@ -31,7 +27,7 @@ set.seed(current_seed)
 output <- replicate(nreps_per_job,
                     do_one(n = current_dynamic_args$n,
                            B = current_dynamic_args$B,
-                           nonresponse = current_dynamic_args$nonresponse),
+                           missing_bound = current_dynamic_args$missing_bound),
                     simplify = FALSE)
 sim_output <- lapply(as.list(1:length(output)),
                      function(x) tibble::add_column(output[[x]]))

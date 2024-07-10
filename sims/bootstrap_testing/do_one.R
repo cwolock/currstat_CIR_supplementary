@@ -1,50 +1,32 @@
-do_one <- function(n, B, nonresponse){
-  w <- cbind(2*rbinom(n, size = 1, prob = 0.5) - 1,#sample(c(-2, -1.5, -1, 0, 1, 1.5, 2), size = n, replace = TRUE, prob = c(0.05, 0.1, 0.2, 0.3, 0.2, 0.1, 0.05)),
+do_one <- function(n, B, missing_bound){
+  start <- Sys.time()
+  w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
   t <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.2*w[,1] - 0.1*w[,2]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.2*w[,1] - 0.1*w[,2]))
-  # round c to nearest quantile of c, just so there aren't so many unique values
+                scale = exp(0.4*w[,1] - 0.2*w[,2]))
+  # round c to nearest quantile of c
   quants <- quantile(y, probs = seq(0, 1, by = 0.02), type = 1)
   for (i in 1:length(y)){
     y[i] <- quants[which.min(abs(y[i] - quants))]
   }
   delta <- t <= y
-  
-  # cs_outcome <- icenReg::cs2ic(time = c, eventOccurred = delta)
-  dat <- data.frame(y = y, delta = delta, w1 = w[,1], w2 = w[,2], w3 = w[,3])#, w4 = w[,4], w5 = w[,5])
-  
-  if (nonresponse == "mcar"){
-    miss_prob <- 0.5
-    dat$s <- rbinom(n, size = 1, prob = miss_prob)
-  } else if (nonresponse == "mar"){
-    miss_prob <- exp(0.5*w[,1] - 0.3*w[,2] + 0.1*w[,2]*w[,3])/(1 + exp(0.5*w[,1] - 0.3*w[,2] + 0.1*w[,2]*w[,3]))
-    dat$s <- rbinom(n, size = 1, prob = miss_prob)
+
+  dat <- data.frame(y = y, delta = delta, w1 = w[,1], w2 = w[,2], w3 = w[,3])
+
+  if (missing_bound != -100){
+    dat$delta[dat$y > missing_bound] <- NA
+    dat$y[dat$y > missing_bound] <- missing_bound
   }
 
-  if (nonresponse == "none"){
-    dat$s <- 1
-  }
-  
+  dat <- dat %>% mutate(s = !is.na(delta))
+
   dat <- dat %>% filter(s == 1)
 
-  
-  # f <- function(dat, ind){
-  #   boot_dat <- dat[ind,]
-  #   fit <- icenReg::ic_sp(icenReg::cs2ic(time = c, eventOccurred = delta)~ x1 + x2 + x3 + x4 + x5,
-  #                         model = "ph",
-  #                         bs_samples = 0,
-  #                         data = boot_dat)
-  #   return(c(fit$coefficients[1],
-  #            fit$coefficients[2],
-  #            fit$coefficients[3]))
-  # }
-  
-  # boot_obj <- boot::boot(data = dat, statistic = f, R = B)
   cs_fit <- icenReg::ic_sp(icenReg::cs2ic(time = y, eventOccurred = delta)~ w1 + w2 + w3,
                            model = "ph",
                            bs_samples = 0,
@@ -61,15 +43,14 @@ do_one <- function(n, B, nonresponse){
                        boot_fit$coefficients[2],
                        boot_fit$coefficients[3])
   }
-  
-  # blah <- boot::boot.ci(boot_obj, 
-  #                       conf = 0.95, type = c("norm", "basic", "perc"),
-  #                       index = 1)
-  
-  return(data.frame(n = n,
+
+  end <- Sys.time()
+  runtime <- difftime(end, start, units = "mins")
+  return(data.frame(runtime = runtime,
+                    n = n,
                     n_actual = nrow(dat),
                     B = B,
-                    nonresponse = nonresponse,
+                    missing_bound = missing_bound,
                     x1_est = cs_fit$coefficients[1],
                     x1_se = sqrt(var(boot_ests[,1])),
                     x1_025 = quantile(boot_ests[,1], probs = 0.025),

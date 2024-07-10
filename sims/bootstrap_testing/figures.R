@@ -15,14 +15,14 @@ dat$id <- rep(1:(nrow(dat)/4), each = 4)
 dat <- dat %>% pivot_wider(names_from = "statistic", values_from = "estimate")
 dat <- dat %>% select(-c(id))
 truth <- data.frame(variable = c("x1", "x2", "x3"),
-                    parameter = c(-0.2*0.75, 0.1*0.75, 0))
+                    parameter = c(-0.4*0.75, 0.2*0.75, 0))
 dat <- left_join(dat, truth, by = "variable")
-names(dat) <- c("n", "n_actual", "B", "nonresponse", "variable", "est", "se", "perc_025", "perc_975", "parameter")
+names(dat) <- c("runtime", "n", "n_actual", "B", "missing_bound", "variable", "est", "se", "perc_025", "perc_975", "parameter")
 dat <- dat %>% mutate(err = est - parameter,
                       cov_norm = ifelse(est - 1.96*se <= parameter & est + 1.96*se >= parameter, 1, 0),
                       cov_perc = ifelse(perc_025 <= parameter & perc_975 >= parameter, 1, 0))
 
-summ <- dat %>% group_by(n, B, variable, nonresponse) %>%
+summ <- dat %>% group_by(n, B, variable, missing_bound) %>%
   summarize(nreps = n(),
             bias = mean(err),
             bias_mc_se = bias/sqrt(nreps),
@@ -37,10 +37,10 @@ summ <- dat %>% group_by(n, B, variable, nonresponse) %>%
          coverage_perc_mc_cil = coverage_perc - 1.96 * coverage_perc_mc_se,
          coverage_perc_mc_ciu = coverage_perc + 1.96 * coverage_perc_mc_se)
 
-summ <- summ %>% select(n, B, nonresponse, variable, coverage_norm, coverage_norm_mc_cil, coverage_norm_mc_ciu,
+summ <- summ %>% select(n, B, missing_bound, variable, coverage_norm, coverage_norm_mc_cil, coverage_norm_mc_ciu,
                         coverage_perc, coverage_perc_mc_cil, coverage_perc_mc_ciu)
-names(summ) <- c("n", "B", "nonresponse", "variable", "norm_est", "norm_cil", "norm_ciu", "perc_est", "perc_cil", "perc_ciu")
-summ <- summ %>% pivot_longer(cols = -c(n, B, nonresponse, variable), 
+names(summ) <- c("n", "B", "missing_bound", "variable", "norm_est", "norm_cil", "norm_ciu", "perc_est", "perc_cil", "perc_ciu")
+summ <- summ %>% pivot_longer(cols = -c(n, B, missing_bound, variable), 
                               names_to = c("type", ".value"),
                               names_sep = "_") %>%
   mutate(B = factor(B, levels = c(100, 250, 500, 1000),
@@ -50,7 +50,7 @@ summ <- summ %>% pivot_longer(cols = -c(n, B, nonresponse, variable),
          type = factor(type, levels = c("norm", "perc"),
                        labels = c("Normal", "Percentile")))
 
-p_nomiss <- summ %>% filter(nonresponse == "none") %>% 
+p_175 <- summ %>% filter(missing_bound == 1.65) %>% 
   ggplot(aes(x = n, group = type)) + 
   geom_line(aes(y = est, linetype = type)) + 
   geom_point(aes(y = est), size = 0.75) +
@@ -74,7 +74,7 @@ p_nomiss <- summ %>% filter(nonresponse == "none") %>%
         legend.position="bottom",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
-p_mcar <- summ %>% filter(nonresponse == "mcar") %>% 
+p_190 <- summ %>% filter(missing_bound == 1.8) %>% 
   ggplot(aes(x = n, group = type)) + 
   geom_line(aes(y = est, linetype = type)) + 
   geom_point(aes(y = est), size = 0.75) +
@@ -103,7 +103,7 @@ p_mcar <- summ %>% filter(nonresponse == "mcar") %>%
         legend.title = element_text(family = "Times New Roman"),
         legend.text = element_text(family = "Times New Roman"))
 
-p_mar <- summ %>% filter(nonresponse == "mar") %>% 
+p_210 <- summ %>% filter(missing_bound == 2.10) %>% 
   ggplot(aes(x = n, group = type)) + 
   geom_line(aes(y = est, linetype = type)) + 
   geom_point(aes(y = est), size = 0.75) +
@@ -132,15 +132,22 @@ p_mar <- summ %>% filter(nonresponse == "mar") %>%
         legend.title = element_text(family = "Times New Roman"),
         legend.text = element_text(family = "Times New Roman"))
 
-ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_mcar_031924.pdf",
-       plot = p_mcar,
+ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen1_061724.pdf",
+       plot = p_175,
        device = "pdf",
        width = 7,
        height = 5,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_mar_031924.pdf",
-       plot = p_mar,
+ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen2_061724.pdf",
+       plot = p_190,
+       device = "pdf",
+       width = 7,
+       height = 5,
+       dpi = 300,
+       units = "in")
+ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen3_061724.pdf",
+       plot = p_210,
        device = "pdf",
        width = 7,
        height = 5,

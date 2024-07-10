@@ -1,4 +1,4 @@
 #!/bin/bash
 
-Rscript /home/cwolock/chu_lab/susan/code/CIR_testing/manage_sim.R
+Rscript /home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/manage_sim.R
 
