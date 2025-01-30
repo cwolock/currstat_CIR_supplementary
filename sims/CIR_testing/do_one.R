@@ -24,19 +24,80 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
     dat$y[dat$y > missing_bound] <- missing_bound
   }
   eval_region <- c(0, eval_upper_bound+0.125)
-  res <- survML::currstatCIR(time = dat$y,
-                             event = dat$delta,
-                             W = dat[,3:5],
-                             SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
-                                               V = 5,
-                                               method = "method.NNLS"),
-                             HAL_control = list(n_bins = c(5,10),
-                                                grid_type = c("equal_mass", "equal_range"),
-                                                V = 5),
-                             missing_method = method,
-                             eval_region = eval_region)
 
-  names(res) <- c("y", "y_quant", "cdf_estimate", "cil", "ciu")
+
+  if (method == "npmle"){
+    dat_cc <- dat %>% filter(!is.na(delta))
+    y_vals <- sort(unique(dat_cc$y))
+    F_n <- stats::ecdf(dat_cc$y)
+    F_n_inverse <- function(t){
+      stats::quantile(dat_cc$y, probs = t, type = 1)
+    }
+    eval_cdf_upper <- mean(dat_cc$y <= eval_region[2])
+    eval_cdf_lower <- mean(dat_cc$y <= eval_region[1])
+    x <- sapply(seq(eval_cdf_lower, eval_cdf_upper, length.out = 101), F_n_inverse)
+    fit <- isoreg(dat_cc$y, dat_cc$delta)
+    xvals <- sort(fit$x)
+    yvals <- fit$yf
+    fn <- stepfun(xvals, c(yvals[1], yvals))
+    res <- data.frame(t = x)
+    res$cdf_estimate = apply(matrix(x), MARGIN = 1, FUN = fn)
+    res$cil <- NA
+    res$ciu <- NA
+  } else if (method == "npmle_survival"){
+    dat_cc <- dat %>% filter(!is.na(delta))
+
+    icen_form <- icenReg::cs2ic(time = dat_cc$y,
+                                eventOccurred = as.logical(dat_cc$delta))
+    icen_form[icen_form == 0] <- -Inf
+    surv_obj <- survival::Surv(time = icen_form[,1], time2 = icen_form[,2], type = "interval2")
+    fit_surv <- survfit(surv_obj ~ 1)
+
+    F_n <- stats::ecdf(dat_cc$y)
+    F_n_inverse <- function(t){
+      stats::quantile(dat_cc$y, probs = t, type = 1)
+    }
+    eval_cdf_upper <- mean(dat_cc$y <= eval_region[2])
+    eval_cdf_lower <- mean(dat_cc$y <= eval_region[1])
+    x <- sapply(seq(eval_cdf_lower, eval_cdf_upper, length.out = 101), F_n_inverse)
+    res <- data.frame(t = x)
+
+    res$cdf_estimate <- NA
+    res$cil <- NA
+    res$ciu <- NA
+    for (i in 1:nrow(res)){
+      closest <- which.min(abs(fit_surv$time - res$t[i]))
+      res$cdf_estimate[i] <- 1 - fit_surv$surv[closest]
+      res$cil[i] <- 1 - fit_surv$upper[closest]
+      res$ciu[i] <- 1 - fit_surv$lower[closest]
+    }
+  } else if (method == "cc"){
+    dat_cc <- dat %>% filter(!is.na(delta))
+    res <- survML::currstatCIR(time = dat_cc$y,
+                               event = dat_cc$delta,
+                               X = dat_cc[,3:5],
+                               SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+                                                 V = 5,
+                                                 method = "method.NNLS"),
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               eval_region = eval_region)
+  } else if (method == "extended"){
+    res <- survML::currstatCIR(time = dat$y,
+                               event = dat$delta,
+                               X = dat[,3:5],
+                               SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+                                                 V = 5,
+                                                 method = "method.NNLS"),
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               eval_region = eval_region)
+  }
+
+
+  names(res) <- c("y", "cdf_estimate", "cil", "ciu")
   res$n = n
   res$missing_bound <- missing_bound
   res$method <- method
@@ -69,5 +130,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
   end <- Sys.time()
   runtime <- difftime(end, start, units = "min")
   res$runtime <- runtime
+
+  rownames(res) <- NULL
   return(res)
 }

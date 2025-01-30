@@ -1,12 +1,12 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_testing_102925"
+sim_name <- "CIR_testing"
 nreps_total <- 500
 nreps_per_job <- 1
 
 ns <- c(500, 1000, 1500, 2000)
 missing_bounds <- c(-100,1.65,1.8, 2.1)
-methods <- c("cc", "extended", "npmle", "npmle_survival")
+methods <- c("cc", "extended")
 eval_upper_bounds <- c(1.5)
 ## set up directories for output, plots
 output_dir <- "output/"
@@ -17,9 +17,9 @@ nreps_per_combo <- nreps_total/nreps_per_job
 ## set up grid of parameters
 param_grid <- expand.grid(mc_id = 1:nreps_per_combo,
                           n = ns,
-                          missing_bound = missing_bounds,
-                          eval_upper_bound = eval_upper_bounds,
-                          method = methods)
+			  missing_bound = missing_bounds,
+		  	  eval_upper_bound = eval_upper_bounds,
+			  method = methods)
 
 ## names of files to read in
 output_nms <- paste0(sim_name, "_", 1:dim(param_grid)[1], ".rds")

@@ -2,10 +2,10 @@ library(SuperLearner)
 library(dplyr)
 library(fdrtool)
 library(haldensify)
-#library(ChernoffDist)
+library(ChernoffDist)
 library(survML)
 
-sim_name <- "CIR_testing_012925"
+sim_name <- "CIR_testing"
 nreps_total <- 500
 nreps_per_job <- 1
 
@@ -13,8 +13,8 @@ source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/do_one.R")
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/utils.R")
 
 ns <- c(500, 1000, 1500, 2000)
-missing_bounds <- c(1.65,1.8, 2.1)
-methods <- c("cc", "extended", "npmle", "npmle_survival")
+missing_bounds <- c(-100,1.65,1.8, 2.1)
+methods <- c("cc", "extended")
 eval_upper_bounds <- c(1.5)
 
 njobs_per_combo <- nreps_total/nreps_per_job

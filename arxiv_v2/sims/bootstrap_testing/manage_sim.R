@@ -1,29 +1,22 @@
-library(SuperLearner)
+#!/usr/local/bin/Rscript
 library(dplyr)
-library(fdrtool)
-library(haldensify)
-#library(ChernoffDist)
-library(survML)
 
-sim_name <- "CIR_testing_012925"
-nreps_total <- 500
-nreps_per_job <- 1
+sim_name <- "icenReg_bootstrap"
+nreps_total <- 1000
+nreps_per_job <- 5
 
-source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/do_one.R")
-source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/utils.R")
+source("/home/cwolock/currstat_CIR_supplementary/sims/bootstrap_testing/do_one.R")
 
 ns <- c(500, 1000, 1500, 2000)
+Bs <- c(100, 250, 500, 1000)
 missing_bounds <- c(1.65,1.8, 2.1)
-methods <- c("cc", "extended", "npmle", "npmle_survival")
-eval_upper_bounds <- c(1.5)
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
 param_grid <- expand.grid(mc_id = 1:njobs_per_combo,
                           n = ns,
-                          missing_bound = missing_bounds,
-		   	  eval_upper_bound = eval_upper_bounds,
-			  method = methods)
+                          B = Bs,
+                          missing_bound = missing_bounds)
 
 job_id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
@@ -33,9 +26,8 @@ current_seed <- job_id
 set.seed(current_seed)
 output <- replicate(nreps_per_job,
                     do_one(n = current_dynamic_args$n,
-			   missing_bound = current_dynamic_args$missing_bound,
-			   method = current_dynamic_args$method,
-                           eval_upper_bound = current_dynamic_args$eval_upper_bound),
+                           B = current_dynamic_args$B,
+                           missing_bound = current_dynamic_args$missing_bound),
                     simplify = FALSE)
 sim_output <- lapply(as.list(1:length(output)),
                      function(x) tibble::add_column(output[[x]]))
