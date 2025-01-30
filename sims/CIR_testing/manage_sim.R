@@ -14,7 +14,7 @@ source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/utils.R")
 
 ns <- c(500, 1000, 1500, 2000)
 missing_bounds <- c(1.65,1.8, 2.1)
-methods <- c("cc", "extended", "npmle", "npmle_survival")
+methods <- c("npmle", "npmle_survival")
 eval_upper_bounds <- c(1.5)
 
 njobs_per_combo <- nreps_total/nreps_per_job
