@@ -94,6 +94,17 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
+  } else if (method == "extended_smalllib"){
+    res <- survML::currstatCIR(time = dat$y,
+                               event = dat$delta,
+                               X = dat[,3:5],
+                               SL_control = list(SL.library = c("SL.mean", "SL.glm"),
+                                                 V = 5,
+                                                 method = "method.NNLS"),
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               eval_region = eval_region)
   }
 
 
