@@ -104,56 +104,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
     temp_ciu <- res$S_hat_ciu
     res$S_hat_cil <- 1 - temp_ciu
     res$S_hat_ciu <- 1 - temp_cil
-  } else if (method == "extended_lib1"){
-    res <- survML::currstatCIR(time = dat$y,
-                               event = dat$delta,
-                               X = dat[,3:5],
-                               SL_control = list(SL.library = c("SL.mean", "SL.glm"),
-                                                 V = 5,
-                                                 method = "method.NNLS"),
-                               HAL_control = list(n_bins = c(5,10),
-                                                  grid_type = c("equal_mass", "equal_range"),
-                                                  V = 5),
-                               eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
-  } else if (method == "extended_lib2"){
-    res <- survML::currstatCIR(time = dat$y,
-                               event = dat$delta,
-                               X = dat[,3:5],
-                               SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.gam"),
-                                                 V = 5,
-                                                 method = "method.NNLS"),
-                               HAL_control = list(n_bins = c(5,10),
-                                                  grid_type = c("equal_mass", "equal_range"),
-                                                  V = 5),
-                               eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
-  } else if (method == "extended_lib3"){
-    res <- survML::currstatCIR(time = dat$y,
-                               event = dat$delta,
-                               X = dat[,3:5],
-                               SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.gam", "SL.earth"),
-                                                 V = 5,
-                                                 method = "method.NNLS"),
-                               HAL_control = list(n_bins = c(5,10),
-                                                  grid_type = c("equal_mass", "equal_range"),
-                                                  V = 5),
-                               eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   }
-
 
   names(res) <- c("y", "cdf_estimate", "cil", "ciu")
   res$n = n
