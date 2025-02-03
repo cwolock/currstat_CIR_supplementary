@@ -1,5 +1,5 @@
 do_one <- function(n, missing_bound, method){
-  missing_bound <- 2.1
+  missing_bound <- 1.65
   eval_upper_bound <- 1.5
   start <- Sys.time()
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
