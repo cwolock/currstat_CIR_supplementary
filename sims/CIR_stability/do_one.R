@@ -1,13 +1,14 @@
-do_one <- function(n, missing_bound, method){
-  missing_bound <- 2.1
+do_one <- function(n, method){
+  missing_bound <- 1.65
   eval_upper_bound <- 1.5
+  beta_int <- 0.3
   start <- Sys.time()
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
   t <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
                 scale = exp(0.4*w[,1] - 0.2*w[,2]))
@@ -27,7 +28,6 @@ do_one <- function(n, missing_bound, method){
   }
   eval_region <- c(0, eval_upper_bound+0.125)
 
-
   if (method == "SL1_HAL"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -39,11 +39,6 @@ do_one <- function(n, missing_bound, method){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "SL2_HAL"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -55,11 +50,6 @@ do_one <- function(n, missing_bound, method){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "SL3_HAL"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -71,11 +61,6 @@ do_one <- function(n, missing_bound, method){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "SL4_HAL"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -87,11 +72,6 @@ do_one <- function(n, missing_bound, method){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "SL4_parametric"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -101,11 +81,6 @@ do_one <- function(n, missing_bound, method){
                                                  method = "method.NNLS"),
                                eval_region = eval_region,
                                g_nuisance = "parametric")
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "glm_parametric"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -113,11 +88,6 @@ do_one <- function(n, missing_bound, method){
                                eval_region = eval_region,
                                g_nuisance = "parametric",
                                mu_nuisance = "glm")
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   } else if (method == "glm_HAL"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -127,13 +97,17 @@ do_one <- function(n, missing_bound, method){
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                mu_nuisance = "glm")
-    res$S_hat_est <- 1 - res$S_hat_est
-    temp_cil <- res$S_hat_cil
-    temp_ciu <- res$S_hat_ciu
-    res$S_hat_cil <- 1 - temp_ciu
-    res$S_hat_ciu <- 1 - temp_cil
   }
 
+  mu_n <- res$mu_n
+  f_sIx_n <- res$f_sIx_n
+
+  res <- res$results
+  res$S_hat_est <- 1 - res$S_hat_est
+  temp_cil <- res$S_hat_cil
+  temp_ciu <- res$S_hat_ciu
+  res$S_hat_cil <- 1 - temp_ciu
+  res$S_hat_ciu <- 1 - temp_cil
 
   names(res) <- c("y", "cdf_estimate", "cil", "ciu")
   res$n = n
@@ -148,7 +122,7 @@ do_one <- function(n, missing_bound, method){
              2*rbinom(n, size = 1, prob = 0.5)-1)
   t <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2]+ beta_int*w[,1]*w[,2]))
   pop_truths <- seq(0, 1, length.out = 501)
   pop_taus <- quantile(t, probs = pop_truths)
 
@@ -162,6 +136,24 @@ do_one <- function(n, missing_bound, method){
 
   res$truth <- sample_truths
   res$tau <- sample_taus
+
+  n <- 1e3
+  w <- cbind(2*rbinom(n, size = 1, prob = 0.5) - 1,
+             2*rbinom(n, size = 1, prob = 0.5)-1,
+             2*rbinom(n, size = 1, prob = 0.5)-1)
+  sample_MSEs_mu <- rep(NA, length(sample_taus))
+  sample_MSEs_g <- rep(NA, length(sample_taus))
+  for (i in 1:length(sample_taus)){
+    this_tau <- sample_taus[i]
+    this_truth_mu <- pweibull(q = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2]+ beta_int*w[,1]*w[,2]))
+    this_mu_n <- apply(X = w, MARGIN = 1, FUN = function(x) mu_n(y = this_tau, w = x))
+    sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
+    this_truth_g <- dweibull(x = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2]))
+    this_g_n <- apply(X = w, MARGIN = 1, FUN = function(x) f_sIx_n(y = this_tau, w = x))
+    sample_MSEs_g[i] <- mean((this_truth_g - this_g_n)^2)
+  }
+  res$MSE_mu <- sample_MSEs_mu
+  res$MSE_g <- sample_MSEs_g
 
   res <- res %>% filter(y <= eval_upper_bound)
 
