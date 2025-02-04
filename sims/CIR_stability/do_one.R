@@ -95,10 +95,37 @@ do_one <- function(n, method){
                                event = dat$delta,
                                X = dat[,3:5],
                                eval_region = eval_region,
-                               HAL_control = list(n_bins = c(5,10,20),
+                               HAL_control = list(n_bins = c(5,10),
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                mu_nuisance = "glm")
+  } else if (method == "gam_HAL"){
+    res <- survML::currstatCIR(time = dat$y,
+                               event = dat$delta,
+                               X = dat[,3:5],
+                               eval_region = eval_region,
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               mu_nuisance = "gam")
+  } else if (method == "ranger_HAL"){
+    res <- survML::currstatCIR(time = dat$y,
+                               event = dat$delta,
+                               X = dat[,3:5],
+                               eval_region = eval_region,
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               mu_nuisance = "ranger")
+  } else if (method == "xgboost_HAL"){
+    res <- survML::currstatCIR(time = dat$y,
+                               event = dat$delta,
+                               X = dat[,3:5],
+                               eval_region = eval_region,
+                               HAL_control = list(n_bins = c(5,10),
+                                                  grid_type = c("equal_mass", "equal_range"),
+                                                  V = 5),
+                               mu_nuisance = "xgboost")
   }
 
   mu_n <- res$mu_n
