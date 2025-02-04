@@ -13,6 +13,7 @@ do_one <- function(n, method){
   y <- rweibull(n,
                 shape = 0.75,
                 scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
+  # y <- rlnorm(n, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
 
   # round c to nearest quantile of c, just so there aren't so many unique values
   quants <- quantile(y, probs = seq(0, 1, by = 0.02), type = 1)
@@ -94,7 +95,7 @@ do_one <- function(n, method){
                                event = dat$delta,
                                X = dat[,3:5],
                                eval_region = eval_region,
-                               HAL_control = list(n_bins = c(5,10),
+                               HAL_control = list(n_bins = c(5,10,20),
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                mu_nuisance = "glm")
@@ -152,6 +153,7 @@ do_one <- function(n, method){
     this_mu_n <- apply(X = w, MARGIN = 1, FUN = function(x) mu_n(y = this_tau, w = x))
     sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
     this_truth_g <- dweibull(x = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
+    # this_truth_g <- dlnorm(x = this_tau, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
     this_g_n <- apply(X = w, MARGIN = 1, FUN = function(x) f_sIx_n(y = this_tau, w = x))
     sample_MSEs_g[i] <- mean((this_truth_g - this_g_n)^2)
   }
