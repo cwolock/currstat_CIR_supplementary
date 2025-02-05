@@ -108,7 +108,7 @@ do_one <- function(n, method){
                                                     grid_type = c("equal_mass", "equal_range"),
                                                     V = 5),
                                  mu_nuisance = "glm")
-    } else if (method == "gam_parametric"){
+    } else if (method == "gam_HAL"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
                                  X = dat[,3:5],
@@ -117,7 +117,7 @@ do_one <- function(n, method){
                                                     grid_type = c("equal_mass", "equal_range"),
                                                     V = 5),
                                  mu_nuisance = "gam")
-    } else if (method == "ranger_parametric"){
+    } else if (method == "ranger_HAL"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
                                  X = dat[,3:5],
@@ -126,7 +126,7 @@ do_one <- function(n, method){
                                                     grid_type = c("equal_mass", "equal_range"),
                                                     V = 5),
                                  mu_nuisance = "ranger")
-    } else if (method == "xgboost_parametric"){
+    } else if (method == "xgboost_HAL"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
                                  X = dat[,3:5],
