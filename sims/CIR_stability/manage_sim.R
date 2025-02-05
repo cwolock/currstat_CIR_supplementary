@@ -5,15 +5,14 @@ library(haldensify)
 #library(ChernoffDist)
 library(survML)
 
-sim_name <- "CIR_stability_020225"
+sim_name <- "CIR_stability_020525_multi"
 nreps_total <- 500
 nreps_per_job <- 1
 
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_stability/do_one.R")
-source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_stability/utils.R")
 
 ns <- c(500, 1000, 1500, 2000)
-methods <- c("SL1_HAL", "SL2_HAL", "SL3_HAL", "SL4_HAL", "SL4_parametric", "glm_parametric", "glm_HAL")
+methods <- c("multi")
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
