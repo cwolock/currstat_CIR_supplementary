@@ -1,4 +1,5 @@
 do_one <- function(n, method){
+  n_train <- n
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
   beta_int <- 0.3
@@ -7,8 +8,8 @@ do_one <- function(n, method){
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
   t <- rweibull(n,
-                shape = exp(-0.1 + 0.2*w[,1] - 0.1*w[,2]),
-                scale = exp(0.4*w[,1] - 0.2*w[,2]))# + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
+                shape = 0.75,
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
   # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
@@ -147,7 +148,7 @@ do_one <- function(n, method){
     res$S_hat_ciu <- 1 - temp_cil
 
     names(res) <- c("y", "cdf_estimate", "cil", "ciu")
-    res$n = n
+    res$n <- n_train
     res$missing_bound <- missing_bound
     res$method <- method
     res$eval_upper_bound <- eval_upper_bound
@@ -158,8 +159,8 @@ do_one <- function(n, method){
                2*rbinom(n, size = 1, prob = 0.5)-1,
                2*rbinom(n, size = 1, prob = 0.5)-1)
     t <- rweibull(n,
-                  shape = exp(-0.1 + 0.2*w[,1] - 0.1*w[,2]),
-                  scale = exp(0.4*w[,1] - 0.2*w[,2]))# + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
+                  shape = 0.75,
+                  scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
     # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
     pop_truths <- seq(0, 1, length.out = 501)
     pop_taus <- quantile(t, probs = pop_truths)
@@ -183,7 +184,8 @@ do_one <- function(n, method){
     sample_MSEs_g <- rep(NA, length(sample_taus))
     for (i in 1:length(sample_taus)){
       this_tau <- sample_taus[i]
-      this_truth_mu <- pweibull(q = this_tau, shape = exp(-0.1 + 0.2*w[,1] - 0.1*w[,2]), scale = exp(0.4*w[,1] - 0.2*w[,2]))# + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
+      this_truth_mu <- pweibull(q = this_tau, shape = 0.75,
+                                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
       # this_truth_mu <- pweibull(q = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2] ))
       this_mu_n <- apply(X = w, MARGIN = 1, FUN = function(x) mu_n(y = this_tau, w = x))
       sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
