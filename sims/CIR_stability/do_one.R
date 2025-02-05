@@ -32,7 +32,7 @@ do_one <- function(n, method){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    methods <- c("glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric")
+    methods <- c("glm_HAL", "gam_HAL", "ranger_HAL", "xgboost_HAL")
   } else{
     methods <- method
   }
@@ -113,21 +113,27 @@ do_one <- function(n, method){
                                  event = dat$delta,
                                  X = dat[,3:5],
                                  eval_region = eval_region,
-				g_nuisance = "parametric",
+                                 HAL_control = list(n_bins = c(5,10),
+                                                    grid_type = c("equal_mass", "equal_range"),
+                                                    V = 5),
                                  mu_nuisance = "gam")
     } else if (method == "ranger_parametric"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
                                  X = dat[,3:5],
                                  eval_region = eval_region,
-					g_nuisance = "parametric",
+                                 HAL_control = list(n_bins = c(5,10),
+                                                    grid_type = c("equal_mass", "equal_range"),
+                                                    V = 5),
                                  mu_nuisance = "ranger")
     } else if (method == "xgboost_parametric"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
                                  X = dat[,3:5],
                                  eval_region = eval_region,
-				g_nuisance = "parametric",
+                                 HAL_control = list(n_bins = c(5,10),
+                                                    grid_type = c("equal_mass", "equal_range"),
+                                                    V = 5),
                                  mu_nuisance = "xgboost")
     }
 
