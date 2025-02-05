@@ -70,7 +70,7 @@ do_one <- function(n, method){
                                SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.gam", "SL.earth", "SL.ranger"),
                                                  V = 5,
                                                  method = "method.NNLS"),
-                               HAL_control = list(n_bins = c(5,10,20),
+                               HAL_control = list(n_bins = c(5,10),
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
                                eval_region = eval_region)
