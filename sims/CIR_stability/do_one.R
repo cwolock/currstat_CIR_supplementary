@@ -2,7 +2,7 @@ do_one <- function(n, method){
   n_train <- n
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
-  beta_int <- 0.3
+  beta_int <- 0.5
   start <- Sys.time()
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
