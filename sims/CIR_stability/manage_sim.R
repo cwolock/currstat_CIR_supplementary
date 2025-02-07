@@ -5,7 +5,7 @@ library(haldensify)
 #library(ChernoffDist)
 library(survML)
 
-sim_name <- "CIR_stability_020525_multi"
+sim_name <- "CIR_stability_020525_multi_unif_3int"
 nreps_total <- 500
 nreps_per_job <- 1
 

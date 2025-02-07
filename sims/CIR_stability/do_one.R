@@ -2,14 +2,14 @@ do_one <- function(n, method){
   n_train <- n
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
-  beta_int <- 0.5
+  beta_int <- 1
   start <- Sys.time()
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
   t <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
   # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
