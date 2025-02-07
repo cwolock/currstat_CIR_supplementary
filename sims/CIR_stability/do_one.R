@@ -13,7 +13,7 @@ do_one <- function(n, method){
   # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/2*w[,1]*w[,2] + beta_int/2*w[,1]*w[,3] - beta_int/2*w[,2]*w[,3]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/4*w[,1]*w[,2] + beta_int/4*w[,1]*w[,3] - beta_int/4*w[,2]*w[,3]))
   # y <- rlnorm(n, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
 
   # round c to nearest quantile of c, just so there aren't so many unique values
@@ -32,7 +32,9 @@ do_one <- function(n, method){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    methods <- c("glm_unif", "gam_unif", "ranger_unif", "xgboost_unif", "glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric")
+    methods <- c("glm_unif", "gam_unif", "ranger_unif", "xgboost_unif",
+                 "glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric",
+                 "glm_HAL", "gam_HAL", "ranger_HAL", "xgboost_HAL")
   } else{
     methods <- method
   }
@@ -241,7 +243,7 @@ do_one <- function(n, method){
       sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
       this_truth_g <- dweibull(x = this_tau,
                                shape = 0.75,
-                               scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/2*w[,1]*w[,2] + beta_int/2*w[,1]*w[,3] - beta_int/2*w[,2]*w[,3]))
+                               scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/4*w[,1]*w[,2] + beta_int/4*w[,1]*w[,3] - beta_int/4*w[,2]*w[,3]))
       # this_truth_g <- dlnorm(x = this_tau, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
       this_g_n <- apply(X = w, MARGIN = 1, FUN = function(x) f_sIx_n(y = this_tau, w = x))
       sample_MSEs_g[i] <- mean((this_truth_g - this_g_n)^2)
