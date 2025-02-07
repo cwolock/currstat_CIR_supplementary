@@ -13,7 +13,7 @@ do_one <- function(n, method){
   # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2]))# + beta_int*w[,1]*w[,2]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
   # y <- rlnorm(n, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
 
   # round c to nearest quantile of c, just so there aren't so many unique values
@@ -32,7 +32,7 @@ do_one <- function(n, method){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    methods <- c("glm_unif", "gam_unif", "ranger_unif", "xgboost_unif")
+    methods <- c("glm_unif", "gam_unif", "ranger_unif", "xgboost_unif", "glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric")
   } else{
     methods <- method
   }
@@ -92,13 +92,6 @@ do_one <- function(n, method){
                                                    method = "method.NNLS"),
                                  eval_region = eval_region,
                                  g_nuisance = "parametric")
-    } else if (method == "glm_parametric"){
-      res <- survML::currstatCIR(time = dat$y,
-                                 event = dat$delta,
-                                 X = dat[,3:5],
-                                 eval_region = eval_region,
-                                 g_nuisance = "parametric",
-                                 mu_nuisance = "glm")
     } else if (method == "glm_HAL"){
       res <- survML::currstatCIR(time = dat$y,
                                  event = dat$delta,
@@ -163,6 +156,34 @@ do_one <- function(n, method){
                                  eval_region = eval_region,
                                  g_nuisance = "uniform",
                                  mu_nuisance = "xgboost")
+    } else if (method == "glm_parametric"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "parametric",
+                                 mu_nuisance = "glm")
+    } else if (method == "gam_parametric"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "parametric",
+                                 mu_nuisance = "gam")
+    }else if (method == "ranger_parametric"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "parametric",
+                                 mu_nuisance = "ranger")
+    }else if (method == "xgboost_parametric"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "parametric",
+                                 mu_nuisance = "xgboost")
     }
 
     mu_n <- res$mu_n
@@ -212,12 +233,15 @@ do_one <- function(n, method){
     sample_MSEs_g <- rep(NA, length(sample_taus))
     for (i in 1:length(sample_taus)){
       this_tau <- sample_taus[i]
-      this_truth_mu <- pweibull(q = this_tau, shape = 0.75,
+      this_truth_mu <- pweibull(q = this_tau,
+                                shape = 0.75,
                                 scale =  exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
       # this_truth_mu <- pweibull(q = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2] ))
       this_mu_n <- apply(X = w, MARGIN = 1, FUN = function(x) mu_n(y = this_tau, w = x))
       sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
-      this_truth_g <- dweibull(x = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2]))# + beta_int*w[,1]*w[,2]))
+      this_truth_g <- dweibull(x = this_tau,
+                               shape = 0.75,
+                               scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
       # this_truth_g <- dlnorm(x = this_tau, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
       this_g_n <- apply(X = w, MARGIN = 1, FUN = function(x) f_sIx_n(y = this_tau, w = x))
       sample_MSEs_g[i] <- mean((this_truth_g - this_g_n)^2)
