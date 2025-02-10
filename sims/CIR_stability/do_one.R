@@ -32,8 +32,7 @@ do_one <- function(n, method){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    methods <- c("glm_unif", "gam_unif", "ranger_unif", "xgboost_unif",
-                 "glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric",
+    methods <- c("glm_parametric", "gam_parametric", "ranger_parametric", "xgboost_parametric",
                  "glm_HAL", "gam_HAL", "ranger_HAL", "xgboost_HAL")
   } else{
     methods <- method
