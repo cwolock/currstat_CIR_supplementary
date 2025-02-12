@@ -2,16 +2,8 @@ library(tidyverse)
 library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/")
-dat <- readRDS("CIR_testing.rds")
-dat <- dat %>% filter(missing_bound != -100) %>% select(-y_quant)
-
-dat2 <- readRDS("CIR_testing_012925_npmlesurvfit.rds")
-
-dat <- rbind(dat, dat2)
-
-dat <- readRDS("CIR_testing_glm.rds")
-dat$truth = 1 - dat$truth
+setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_stability/")
+dat <- readRDS("CIR_stability_021025_multi_lessYint_bigN_moreHALbins.rds")
 
 messed_up <- dat %>% filter(is.na(cdf_estimate) | is.na(cil) | is.na(ciu))
 
@@ -22,71 +14,26 @@ dat <- dat %>% mutate(err = cdf_estimate - truth,
                       truth = round(truth, digits = 2))
 
 dat <- dat %>% filter(round(truth, digits = 2) <= 0.95 & round(truth, digits = 2) >= 0.05) %>%
-  mutate(method = factor(method, levels = c("cc", "extended", "npmle", "npmle_survival", "extended_smalllib"),
-                         labels = c("Complete case CIR", "Extended CIR", "NPMLE (manual)", "NPMLE", "Extended (glm)")),
-         n = factor(n),
-         missing_bound = factor(missing_bound,
-                                levels = c(2.1, 1.8, 1.65),
-                                labels = c("Scenario 1", "Scenario 2", "Scenario 3")),
-         eval_upper_bound = factor(eval_upper_bound))
+  mutate(#method = factor(method, levels = c("cc", "extended", "npmle", "npmle_survival", "extended_smalllib"),
+        #                 labels = c("Complete case CIR", "Extended CIR", "NPMLE (manual)", "NPMLE", "Extended (glm)")),
+         n = factor(n))
 
-summ <- dat %>% group_by(n, method, truth, missing_bound, eval_upper_bound) %>%
+summ <- dat %>% group_by(n, method, truth) %>%
   summarize(nreps = n(),
             sample_size = mean(n_actual),
             bias = mean(err),
-            coverage = mean(cov)) %>%
+            variance = var(cdf_estimate),
+            coverage = mean(cov),
+            runtime = mean(runtime),
+            MSE_mu = mean(MSE_mu),
+            MSE_g = mean(MSE_g)) %>%
   filter(nreps > 100)
 
-timeaverage_summ <- summ %>% group_by(n, method, missing_bound, eval_upper_bound) %>%
-  summarize(bias = mean(abs(bias)),
-            coverage = mean(coverage))
-
-p_timeaverage_bias <- timeaverage_summ %>%
-  ggplot(aes(x = n, group = method)) +
-  geom_line(aes(y = bias, linetype = method, color = method)) +
-  facet_wrap(~ missing_bound, nrow = 1) +
-  theme_bw() +
-  ylab("Absolute bias") +
-  xlab("Sample size") +
-  ggtitle("Nonresponse scenario") +
-  scale_linetype_manual(name = "Method", values = c("dashed", "solid", "dotted")) +
-  scale_color_discrete(name = "Method") +
-  # ylim(c(0, 0.013)) +
-  geom_hline(yintercept = 0, color = "black") +
-  theme( plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
-         strip.background = element_blank(),
-         legend.position = "bottom",
-         axis.text = element_text(family = "Times New Roman"),
-         axis.title = element_text(family = "Times New Roman"),
-         strip.text = element_text(family = "Times New Roman"),
-         legend.title = element_text(family = "Times New Roman"),
-         legend.text = element_text(family = "Times New Roman"),
-         panel.grid.major.x = element_blank())
-p_timeaverage_cov <- timeaverage_summ %>%
-  ggplot(aes(x = n, group = method)) +
-  geom_line(aes(y = coverage, linetype = method, color = method)) +
-  facet_wrap(~ missing_bound, nrow = 1) +
-  theme_bw() +
-  ylab("Coverage") +
-  xlab("Sample size") +
-  ggtitle("Nonresponse scenario") +
-  geom_hline(yintercept = 0.95, color = "black") +
-  scale_linetype_manual(name = "Method", values = c("dashed", "solid", "dotted")) +
-  scale_color_discrete(name = "Method") +
-  theme( plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
-         strip.background = element_blank(),
-         legend.position = "bottom",
-         axis.text = element_text(family = "Times New Roman"),
-         axis.title = element_text(family = "Times New Roman"),
-         strip.text = element_text(family = "Times New Roman"),
-         legend.title = element_text(family = "Times New Roman"),
-         legend.text = element_text(family = "Times New Roman"),
-         panel.grid.major.x = element_blank())
 
 p_bias <- summ %>%
   ggplot(aes(x = truth, group = n)) +
   geom_line(aes(y = bias, linetype = n, color = n)) +
-  facet_grid(method~missing_bound) +
+  facet_wrap(~method) +
   theme_bw() +
   geom_hline(yintercept = 0, color = "black") +
   ylab("Bias") +
@@ -111,22 +58,22 @@ p_bias <- summ %>%
          panel.grid.minor.x = element_blank(),
          panel.grid.minor.y = element_blank())
 
-p_coverage <- summ %>%
+p_variance <- summ %>%
   ggplot(aes(x = truth, group = n)) +
-  geom_line(aes(y = coverage, linetype = n, color = n)) +
-  facet_grid(method~missing_bound) +
+  geom_line(aes(y = variance, linetype = n, color = n)) +
+  facet_wrap(~method) +
   theme_bw() +
-  ylab("Coverage") +
+  geom_hline(yintercept = 0, color = "black") +
+  ylab("Bias") +
   xlab("Symptom resolution probability") +
   ggtitle("Nonresponse scenario") +
   scale_linetype_manual(name = "Sample size", values = c("dotted", "dashed", "longdash", "solid")) +
   scale_color_discrete(name = "Sample size") +
-  geom_hline(yintercept = 0.95, color = "black") +
-  scale_y_continuous(breaks = c(0.7, 0.8, 0.9, 1.0),
-                     labels = c("0.7", "0.8", "0.9", "1.0"),
-                     limits = c(0.7, 1),
-                     sec.axis = sec_axis(~ . , name = "Method",
-                                         labels = NULL, breaks = NULL)) +
+  # scale_y_continuous(breaks = c(-0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03),
+  # labels = c("-0.03", "-0.02", "-0.01", "0.00", "0.01", "0.02", "0.03"),
+  # limits = c(-0.03, 0.03),
+  # sec.axis = sec_axis(~ . , name = "Method",
+  # labels = NULL, breaks = NULL)) +
   theme( plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
          strip.background = element_blank(),
          legend.position = "bottom",
@@ -139,6 +86,50 @@ p_coverage <- summ %>%
          panel.grid.minor.x = element_blank(),
          panel.grid.minor.y = element_blank())
 
+# look at stability
+dat <- dat %>% group_by(n, method, truth, runtime) %>%
+  summarize(bias = mean(err)) %>%
+  filter(method == "xgboost_HAL" | method == "SL4_HAL")
+dat <- dat %>% pivot_wider(names_from = method, values_from = bias) %>%
+  mutate(stability = abs(xgboost_HAL - SL4_HAL))
+summ <- dat %>% group_by(n, truth) %>%
+  summarize(nreps = n(),
+            median = median(stability, na.rm = TRUE),
+            q95 = quantile(stability, probs = 0.95, na.rm = TRUE),
+            q5 = quantile(stability, probs = 0.05, na.rm = TRUE)) %>%
+  filter(nreps > 100)
+
+p_stability <- summ %>%
+  ggplot(aes(x = truth)) +
+  geom_line(aes(y = median, color = "red")) +
+  geom_line(aes(y = q95), color= "blue") +
+  geom_line(aes(y = q5), color = "black") +
+  facet_wrap(~ n) +
+  theme_bw() +
+  geom_hline(yintercept = 0, color = "black") +
+  ylab("Bias") +
+  xlab("Symptom resolution probability") +
+  ggtitle("Nonresponse scenario") +
+  scale_linetype_manual(name = "Sample size", values = c("dotted", "dashed", "longdash", "solid")) +
+  scale_color_discrete(name = "Sample size") +
+  # scale_y_continuous(breaks = c(-0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03),
+  # labels = c("-0.03", "-0.02", "-0.01", "0.00", "0.01", "0.02", "0.03"),
+  # limits = c(-0.03, 0.03),
+  # sec.axis = sec_axis(~ . , name = "Method",
+  # labels = NULL, breaks = NULL)) +
+  theme( plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
+         strip.background = element_blank(),
+         legend.position = "bottom",
+         axis.text = element_text(family = "Times New Roman"),
+         axis.title = element_text(family = "Times New Roman"),
+         strip.text = element_text(family = "Times New Roman"),
+         legend.title = element_text(family = "Times New Roman"),
+         legend.text = element_text(family = "Times New Roman"),
+         panel.grid.major.x = element_blank(),
+         panel.grid.minor.x = element_blank(),
+         panel.grid.minor.y = element_blank())
+
+
 ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/bias_plot_013025.pdf",
        plot = p_bias,
        device = "pdf",
@@ -146,24 +137,4 @@ ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat
        height = 6,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/coverage_plot_013025.pdf",
-       plot = p_coverage,
-       device = "pdf",
-       width = 7,
-       height = 6,
-       dpi = 300,
-       units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/timeave_bias_plot_013025.pdf",
-       plot = p_timeaverage_bias,
-       device = "pdf",
-       width = 7,
-       height = 4.0,
-       dpi = 300,
-       units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/timeave_coverage_plot_013025.pdf",
-       plot = p_timeaverage_cov,
-       device = "pdf",
-       width = 7,
-       height = 4.0,
-       dpi = 300,
-       units = "in")
+

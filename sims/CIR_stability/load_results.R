@@ -6,6 +6,7 @@ nreps_per_job <- 1
 
 ns <- c(500, 1000, 1500, 2000)
 methods <- c("multi")
+interactions <- c(0, 0.5, 1)
 ## set up directories for output, plots
 output_dir <- "output/"
 
@@ -15,7 +16,8 @@ nreps_per_combo <- nreps_total/nreps_per_job
 ## set up grid of parameters
 param_grid <- expand.grid(mc_id = 1:nreps_per_combo,
                           n = ns,
-                          method = methods)
+                          method = methods,
+                          interaction = interactions)
 
 ## names of files to read in
 output_nms <- paste0(sim_name, "_", 1:dim(param_grid)[1], ".rds")
