@@ -88,6 +88,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
     temp_ciu <- res$S_hat_ciu
     res$S_hat_cil <- 1 - temp_ciu
     res$S_hat_ciu <- 1 - temp_cil
+    res <- res$results
   } else if (method == "extended"){
     res <- survML::currstatCIR(time = dat$y,
                                event = dat$delta,
@@ -104,6 +105,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
     temp_ciu <- res$S_hat_ciu
     res$S_hat_cil <- 1 - temp_ciu
     res$S_hat_ciu <- 1 - temp_cil
+    res <- res$results
   }
 
   names(res) <- c("y", "cdf_estimate", "cil", "ciu")

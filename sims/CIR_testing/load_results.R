@@ -1,12 +1,12 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_testing_102925"
+sim_name <- "CIR_testing_021125_bugfixdensity"
 nreps_total <- 500
 nreps_per_job <- 1
 
 ns <- c(500, 1000, 1500, 2000)
-missing_bounds <- c(-100,1.65,1.8, 2.1)
-methods <- c("cc", "extended", "npmle", "npmle_survival")
+missing_bounds <- c(1.65,1.8, 2.1)
+methods <- c("npmle", "cc", "extended")
 eval_upper_bounds <- c(1.5)
 ## set up directories for output, plots
 output_dir <- "output/"
