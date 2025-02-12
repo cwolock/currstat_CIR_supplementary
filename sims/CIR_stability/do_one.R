@@ -1,8 +1,8 @@
-do_one <- function(n, method){
+do_one <- function(n, method, interaction){
   n_train <- n
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
-  beta_int <- 1
+  beta_int <- interaction
   start <- Sys.time()
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
@@ -275,6 +275,7 @@ do_one <- function(n, method){
   end <- Sys.time()
   runtime <- difftime(end, start, units = "min")
   res$runtime <- runtime
+  res$interaction <- interaction
 
   rownames(res) <- NULL
   return(res)
