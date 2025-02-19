@@ -2,7 +2,7 @@ library(tidyverse)
 library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-setwd("/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/")
+setwd("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/code/bootstrap_testing/")
 # dat <- readRDS("icenReg_bootstrap_011324.rds")
 dat <- readRDS("icenReg_bootstrap.rds")
 dat <- dat %>% pivot_longer(cols = c(x1_est, x1_se, x1_025, x1_975,
@@ -40,7 +40,7 @@ summ <- dat %>% group_by(n, B, variable, missing_bound) %>%
 summ <- summ %>% select(n, B, missing_bound, variable, coverage_norm, coverage_norm_mc_cil, coverage_norm_mc_ciu,
                         coverage_perc, coverage_perc_mc_cil, coverage_perc_mc_ciu)
 names(summ) <- c("n", "B", "missing_bound", "variable", "norm_est", "norm_cil", "norm_ciu", "perc_est", "perc_cil", "perc_ciu")
-summ <- summ %>% pivot_longer(cols = -c(n, B, missing_bound, variable), 
+summ <- summ %>% pivot_longer(cols = -c(n, B, missing_bound, variable),
                               names_to = c("type", ".value"),
                               names_sep = "_") %>%
   mutate(B = factor(B, levels = c(100, 250, 500, 1000),
@@ -50,16 +50,16 @@ summ <- summ %>% pivot_longer(cols = -c(n, B, missing_bound, variable),
          type = factor(type, levels = c("norm", "perc"),
                        labels = c("Normal", "Percentile")))
 
-p_175 <- summ %>% filter(missing_bound == 1.65) %>% 
-  ggplot(aes(x = n, group = type)) + 
-  geom_line(aes(y = est, linetype = type)) + 
+p_175 <- summ %>% filter(missing_bound == 1.65) %>%
+  ggplot(aes(x = n, group = type)) +
+  geom_line(aes(y = est, linetype = type)) +
   geom_point(aes(y = est), size = 0.75) +
   geom_errorbar(aes(ymin=cil,
                     ymax=ciu),
                 width=.1) +
-  facet_grid(variable~ B, labeller = label_parsed) + 
-  theme_bw() + 
-  geom_hline(yintercept = 0.95, color = "red") + 
+  facet_grid(variable~ B, labeller = label_parsed) +
+  theme_bw() +
+  geom_hline(yintercept = 0.95, color = "red") +
   ylab("Empirical coverage") +
   xlab("Sample size") +
   labs(linetype = "Interval type") +
@@ -70,20 +70,25 @@ p_175 <- summ %>% filter(missing_bound == 1.65) %>%
                      sec.axis = sec_axis(~ . , name = "Coefficient",
                                          labels = NULL, breaks = NULL)) +
   theme(strip.background = element_blank(),
-        plot.title = element_text(hjust = 0.5, size = 12),
+        plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
         legend.position="bottom",
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.text.y = element_text(family = "Times New Roman"),
+        axis.title = element_text(family = "Times New Roman"),
+        strip.text = element_text(family = "Times New Roman"),
+        legend.title = element_text(family = "Times New Roman"),
+        legend.text = element_text(family = "Times New Roman"))
 
-p_190 <- summ %>% filter(missing_bound == 1.8) %>% 
-  ggplot(aes(x = n, group = type)) + 
-  geom_line(aes(y = est, linetype = type)) + 
+p_190 <- summ %>% filter(missing_bound == 1.8) %>%
+  ggplot(aes(x = n, group = type)) +
+  geom_line(aes(y = est, linetype = type)) +
   geom_point(aes(y = est), size = 0.75) +
   geom_errorbar(aes(ymin=cil,
                     ymax=ciu),
                 width=.1) +
-  facet_grid(variable~ B, labeller = label_parsed) + 
-  theme_bw() + 
-  geom_hline(yintercept = 0.95, color = "red") + 
+  facet_grid(variable~ B, labeller = label_parsed) +
+  theme_bw() +
+  geom_hline(yintercept = 0.95, color = "red") +
   ylab("Empirical coverage") +
   xlab("Sample size") +
   labs(linetype = "Interval type") +
@@ -103,16 +108,16 @@ p_190 <- summ %>% filter(missing_bound == 1.8) %>%
         legend.title = element_text(family = "Times New Roman"),
         legend.text = element_text(family = "Times New Roman"))
 
-p_210 <- summ %>% filter(missing_bound == 2.10) %>% 
-  ggplot(aes(x = n, group = type)) + 
-  geom_line(aes(y = est, linetype = type)) + 
+p_210 <- summ %>% filter(missing_bound == 2.10) %>%
+  ggplot(aes(x = n, group = type)) +
+  geom_line(aes(y = est, linetype = type)) +
   geom_point(aes(y = est), size = 0.75) +
   geom_errorbar(aes(ymin=cil,
                     ymax=ciu),
                 width=.1) +
-  facet_grid(variable~ B, labeller = label_parsed) + 
-  theme_bw() + 
-  geom_hline(yintercept = 0.95, color = "red") + 
+  facet_grid(variable~ B, labeller = label_parsed) +
+  theme_bw() +
+  geom_hline(yintercept = 0.95, color = "red") +
   ylab("Empirical coverage") +
   xlab("Sample size") +
   labs(linetype = "Interval type") +
@@ -132,21 +137,21 @@ p_210 <- summ %>% filter(missing_bound == 2.10) %>%
         legend.title = element_text(family = "Times New Roman"),
         legend.text = element_text(family = "Times New Roman"))
 
-ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen1_061724.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen1_021525.pdf",
        plot = p_175,
        device = "pdf",
        width = 7,
        height = 5,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen2_061724.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen2_021525.pdf",
        plot = p_190,
        device = "pdf",
        width = 7,
        height = 5,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/bootstrap_testing/icenReg_boot_test_scen3_061724.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen3_021525.pdf",
        plot = p_210,
        device = "pdf",
        width = 7,
@@ -158,11 +163,11 @@ ggsave(filename = "/Users/cwolock/Dropbox/UW/DISSERTATION/chu_lab/susan/code/boo
 # summ %>% ggplot(aes(x = n, y = bias, color = as.factor(B))) +
 #   geom_point() +
 #   facet_wrap(~variable)
-# 
+#
 # summ %>% ggplot(aes(x = n, y = coverage_norm, color = as.factor(B))) +
 #   geom_point() +
 #   facet_wrap(~variable)
-# 
+#
 # summ %>% ggplot(aes(x = n, y = coverage_perc, color = as.factor(B))) +
 #   geom_point() +
 #   facet_wrap(~variable)
