@@ -1,12 +1,12 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_stability_020525_multi_unif_3int"
+sim_name <- "CIR_stability_021225_int4_bigN_fewerHALbins"
 nreps_total <- 500
 nreps_per_job <- 1
 
 ns <- c(500, 1000, 1500, 2000)
 methods <- c("multi")
-interactions <- c(0, 0.5, 1)
+interactions <- c(0.25)
 ## set up directories for output, plots
 output_dir <- "output/"
 

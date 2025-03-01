@@ -5,15 +5,15 @@ library(haldensify)
 #library(ChernoffDist)
 library(survML)
 
-sim_name <- "CIR_stability_020525_multi_unif_3int"
+sim_name <- "CIR_stability_021225_int4_bigN_fewerHALbins"
 nreps_total <- 500
 nreps_per_job <- 1
 
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_stability/do_one.R")
 
-ns <- c(500, 1000, 1500, 2000)
+ns <- c(500, 1000, 2500, 5000)
 methods <- c("multi")
-interactions <- c(0, 0.5, 1)
+interactions <- c(0.4)
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
