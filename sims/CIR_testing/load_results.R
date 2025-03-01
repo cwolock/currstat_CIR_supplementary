@@ -1,6 +1,6 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_testing_021125_bugfixdensity"
+sim_name <- "CIR_testing_021325_withint"
 nreps_total <- 500
 nreps_per_job <- 1
 

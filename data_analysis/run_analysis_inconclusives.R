@@ -4,12 +4,12 @@ library(earth)
 library(SuperLearner)
 library(dplyr)
 library(haldensify)
-library(ChernoffDist)
+#library(ChernoffDist)
 library(fdrtool)
 library(xgboost)
 library(survML)
 
-dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/long_covid_data_truncated_120_021825.rds")
+dat <- readRDS("/home/cwolock/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_inconclusives.rds")
 
 names(dat)[names(dat) == "time_event"] <- "y"
 names(dat)[names(dat) == "resolution"] <- "delta"
@@ -67,4 +67,4 @@ res <- survML::currstatCIR(time = dat$y,
 # }
 
 
-saveRDS(res$results, "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_021825_trunc120_window115_inconclusives.rds")
+saveRDS(res$results, "/home/cwolock/currstat_CIR_supplementary/data_analysis/CIR_results_021825_trunc120_window115_inconclusives.rds")
