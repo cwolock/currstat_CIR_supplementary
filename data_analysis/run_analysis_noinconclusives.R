@@ -9,14 +9,34 @@ library(fdrtool)
 library(xgboost)
 library(survML)
 
-dat <- readRDS("/home/cwolock/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_noinconclusives.rds")
+# dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_noinconclusives.rds")
+dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
+# dat_old <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/long_covid_truncated_120.rds")
+# blah <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/CIR_results_correct_063024_trunc120_window115rds")
+# blah <- blah %>% select(-x_quants) %>%
+  # mutate(y=1-y)
+
+dat <- dat %>% select(-record_id)
 
 names(dat)[names(dat) == "time_event"] <- "y"
 names(dat)[names(dat) == "resolution"] <- "delta"
 
+dat_cc <- dat %>% filter(!is.na(delta))
 # xgboost tuning parameters
 tune <- list(ntrees = c(250, 500, 1000), max_depth = c(1,2), minobspernode = 10, shrinkage = 0.01)
 xgb_grid <- create.SL.xgboost(tune = tune)
+
+# res_cc <- survML::currstatCIR(time = dat_cc$y,
+#                            event = dat_cc$delta,
+#                            X = dat_cc[,!(names(dat_cc) %in% c("y", "delta"))],
+#                            SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger", xgb_grid$names),
+#                                              V = 5,
+#                                              method = "method.NNLS"),
+#                            HAL_control = list(n_bins = c(5,10),
+#                                               grid_type = c("equal_mass", "equal_range"),
+#                                               V = 5),
+#                            n_eval_pts = 1001,
+#                            eval_region = c(0, 115))
 
 res <- survML::currstatCIR(time = dat$y,
                            event = dat$delta,
@@ -67,4 +87,4 @@ res <- survML::currstatCIR(time = dat$y,
 # }
 
 
-saveRDS(res$results, "/home/cwolock/currstat_CIR_supplementary/data_analysis/CIR_results_021825_trunc120_window115_noinconclusives.rds")
+saveRDS(res, "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_022425_trunc120_window115_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
