@@ -5,108 +5,48 @@ library(gridExtra)
 library(ggpubr)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/long_covid_vaxxed_allyears_withCT_recID_truncated_120_newsympcats.rds")
-
-dat_resp <- dat %>% filter(!is.na(resolution))
-dat_nresp <- dat %>% filter(is.na(resolution))
-
-table(dat$core_sex)
-round(100*table(dat$core_sex)/nrow(dat), digits = 1)
-table(dat$age_bin)
-round(100*table(dat$age_bin)/nrow(dat), digits = 1)
-table(dat$symp_resp)
-round(100*table(dat$symp_resp)/nrow(dat), digits = 1)
-table(dat$symp_gi)
-round(100*table(dat$symp_gi)/nrow(dat), digits = 1)
-table(dat$symp_tired)
-round(100*table(dat$symp_tired)/nrow(dat), digits = 1)
-table(dat$symp_systemic)
-round(100*table(dat$symp_systemic)/nrow(dat), digits = 1)
-table(dat$comorbid_cardio)
-round(100*table(dat$comorbid_cardio)/nrow(dat), digits = 1)
-table(dat$comorbid_resp)
-round(100*table(dat$comorbid_resp)/nrow(dat), digits = 1)
-table(dat$comorbid_immun)
-round(100*table(dat$comorbid_immun)/nrow(dat), digits = 1)
-table(dat$comorbid_allergy)
-round(100*table(dat$comorbid_allergy)/nrow(dat), digits = 1)
-table(dat$days_since_last_vax_cat)
-round(100*table(dat$days_since_last_vax_cat)/nrow(dat), digits = 1)
-table(dat$viral_load)
-round(100*table(dat$viral_load)/nrow(dat), digits = 1)
-
-table(dat_resp$core_sex)
-round(100*table(dat_resp$core_sex)/nrow(dat_resp), digits = 1)
-table(dat_resp$age_bin)
-round(100*table(dat_resp$age_bin)/nrow(dat_resp), digits = 1)
-table(dat_resp$symp_resp)
-round(100*table(dat_resp$symp_resp)/nrow(dat_resp), digits = 1)
-table(dat_resp$symp_gi)
-round(100*table(dat_resp$symp_gi)/nrow(dat_resp), digits = 1)
-table(dat_resp$symp_tired)
-round(100*table(dat_resp$symp_tired)/nrow(dat_resp), digits = 1)
-table(dat_resp$symp_systemic)
-round(100*table(dat_resp$symp_systemic)/nrow(dat_resp), digits = 1)
-table(dat_resp$comorbid_cardio)
-round(100*table(dat_resp$comorbid_cardio)/nrow(dat_resp), digits = 1)
-table(dat_resp$comorbid_resp)
-round(100*table(dat_resp$comorbid_resp)/nrow(dat_resp), digits = 1)
-table(dat_resp$comorbid_immun)
-round(100*table(dat_resp$comorbid_immun)/nrow(dat_resp), digits = 1)
-table(dat_resp$comorbid_allergy)
-round(100*table(dat_resp$comorbid_allergy)/nrow(dat_resp), digits = 1)
-table(dat_resp$days_since_last_vax_cat)
-round(100*table(dat_resp$days_since_last_vax_cat)/nrow(dat_resp), digits = 1)
-table(dat_resp$viral_load)
-round(100*table(dat_resp$viral_load)/nrow(dat_resp), digits = 1)
-
-
-table(dat_nresp$core_sex)
-round(100*table(dat_nresp$core_sex)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$age_bin)
-round(100*table(dat_nresp$age_bin)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$symp_resp)
-round(100*table(dat_nresp$symp_resp)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$symp_gi)
-round(100*table(dat_nresp$symp_gi)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$symp_tired)
-round(100*table(dat_nresp$symp_tired)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$symp_systemic)
-round(100*table(dat_nresp$symp_systemic)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$comorbid_cardio)
-round(100*table(dat_nresp$comorbid_cardio)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$comorbid_resp)
-round(100*table(dat_nresp$comorbid_resp)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$comorbid_immun)
-round(100*table(dat_nresp$comorbid_immun)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$comorbid_allergy)
-round(100*table(dat_nresp$comorbid_allergy)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$days_since_last_vax_cat)
-round(100*table(dat_nresp$days_since_last_vax_cat)/nrow(dat_nresp), digits = 1)
-table(dat_nresp$viral_load)
-round(100*table(dat_nresp$viral_load)/nrow(dat_nresp), digits = 1)
+dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_022425_noinconclusives_fixedexpdates_keepinvitedbothyears_wlag.rds")
 
 # hisotgram of response times
 p <- dat %>%
   filter(time_event < 120) %>%
   ggplot(aes(x = time_event)) +
-  geom_histogram(binwidth = 4) +
+  geom_histogram(binwidth = 2, color = "white", fill = "gray70") +
   theme_bw() +
   scale_x_continuous(breaks = c(25, 50, 75,  100, 125)) +
   xlab("Survey response time (days since positive test)") +
   ylab("Number of respondents") +
   theme(axis.title = element_text(family = "Times New Roman"),
         axis.text = element_text(family = "Times New Roman"))
-# ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/response_times_histogram.pdf",
-#        device = "pdf",
-#        dpi = 300,
-#        width = 7,
-#        height = 4,
-#        units = "in")
+ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/response_times_histogram_022425.pdf",
+       device = "pdf",
+       dpi = 300,
+       width = 7,
+       height = 4,
+       units = "in")
+
+sum(dat$invite_lag > 120)
+p <- dat %>%
+  filter(invite_lag <= 120) %>%
+  ggplot(aes(x = invite_lag)) +
+  geom_histogram(binwidth = 2, color = "white", fill = "gray70") +
+  theme_bw() +
+  scale_x_continuous(breaks = c(25, 50, 75,  100, 125)) +
+  xlab("Survey invitation time (days since positive test)") +
+  ylab("Number of invitees") +
+  theme(axis.title = element_text(family = "Times New Roman"),
+        axis.text = element_text(family = "Times New Roman"))
+ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/invite_lag_times_histogram_022425.pdf",
+       device = "pdf",
+       dpi = 300,
+       width = 7,
+       height = 4,
+       units = "in")
+
 
 # CIR results
 # fit <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/CIR_results_correct_063024_trunc120_window115rds")
-fit <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_021825_trunc120_window115_noinconclusives.rds")
+fit <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_022425_trunc120_window115_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
 
 # fit <- fit %>% mutate(x = as.numeric(x), #x_quants = as.numeric(x_quants),
 #                       y = as.numeric(y), y_low = as.numeric(y_low),
@@ -127,9 +67,9 @@ p1 <- fit %>% filter(t <= 90 & t>= 30) %>%
   geom_vline(xintercept = 30, color = "gray") +
   geom_vline(xintercept = 60, color = "gray") +
   geom_vline(xintercept = 90, color = "gray") +
-  geom_point(aes(x = 30, y= 0.18979680), color = "black") +
-  geom_point(aes(x = 60, y= 0.13029407), color = "black") +
-  geom_point(aes(x = 90, y= 0.06900706), color = "black") +
+  geom_point(aes(x = 30, y= 0.1918571), color = "black") +
+  geom_point(aes(x = 60, y= 0.1291988), color = "black") +
+  geom_point(aes(x = 90, y= 0.06809619), color = "black") +
   geom_step(aes(y = S_hat_est)) +
   geom_step(aes(y = S_hat_cil), linetype = "dashed") +
   geom_step(aes(y = S_hat_ciu), linetype = "dashed") +
@@ -181,7 +121,7 @@ p_both <- grid.arrange(p1.common.x,
                        heights = c(1, 0.5))
 
 # p_both <- ggarrange(p, p2, nrow = 2)
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/CIR_results_main_021825.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_022425_noinconclusives_fixedexpdates_keepinvitedbothyears.pdf",
        plot = p_both,
        device="pdf", width = 9,
        height=5, units="in", dpi=300)

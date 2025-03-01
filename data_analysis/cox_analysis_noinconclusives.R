@@ -19,7 +19,8 @@ risk_factors_VL <- c("age_bin", # age
 y <- "time_event"
 delta <- "resolution"
 
-dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_noinconclusives.rds")
+# dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_021825_noinconclusives.rds")
+dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_022425_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
 dat <- dat %>% select(all_of(c(risk_factors_VL, y, delta))) %>%
   filter(!is.na(resolution))
 fit <- icenReg::ic_sp(icenReg::cs2ic(time = time_event,
