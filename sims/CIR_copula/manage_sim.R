@@ -20,8 +20,7 @@ njobs_per_combo <- nreps_total/nreps_per_job
 
 param_grid <- expand.grid(mc_id = 1:njobs_per_combo,
                           n = ns,
-                          missing_bound = missing_bounds,
-                          eval_upper_bound = eval_upper_bounds,
+				theta = thetas,
                           method = methods)
 
 job_id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
@@ -33,7 +32,7 @@ set.seed(current_seed)
 output <- replicate(nreps_per_job,
                     do_one(n = current_dynamic_args$n,
                            method = current_dynamic_args$method,
-                           theta = current_dynamic_args$thetas),
+                           theta = current_dynamic_args$theta),
                     simplify = FALSE)
 sim_output <- lapply(as.list(1:length(output)),
                      function(x) tibble::add_column(output[[x]]))
