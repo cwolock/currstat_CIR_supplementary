@@ -2,49 +2,70 @@ library(tidyverse)
 library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/")
-dat <- readRDS("CIR_testing_021325_withint.rds")
+setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_copula/")
+dat <- readRDS("CIR_copula_030125.rds")
 # dat <- dat %>% filter(missing_bound != -100) %>% select(-y_quant)
 
 # dat2 <- readRDS("CIR_testing_012925_npmlesurvfit.rds")
 
 # dat <- rbind(dat, dat2)
 
-messed_up <- dat %>% filter(is.na(cdf_estimate) | is.na(cil) | is.na(ciu))
+messed_up <- dat %>% filter(is.na(cdf_estimate))
 
-dat <- dat %>% filter(!(is.na(cdf_estimate) | is.na(cil) | is.na(ciu)))
-
-dat <- dat %>% mutate(cdf_estimate = ifelse(method != "npmle_survival", 1 - cdf_estimate, cdf_estimate),
-                      ciu_temp = ciu,
-                      cil_temp = cil,
-                      cil = ifelse(method != "npmle_survival", 1 - ciu_temp, cil_temp),
-                      ciu = ifelse(method != "npmle_survival", 1 - cil_temp, ciu_temp))
+dat <- dat %>% filter(!(is.na(cdf_estimate)))
 
 dat <- dat %>% mutate(err = cdf_estimate - truth,
-                      cov = ifelse(cil <= truth & ciu >= truth, 1, 0),
                       truth = round(truth, digits = 2))
 
 dat <- dat %>% filter(round(truth, digits = 2) <= 0.95 & round(truth, digits = 2) >= 0.05) %>%
-  mutate(method = factor(method, levels = c("cc", "extended", "npmle", "npmle_survival"),
-                         labels = c("Complete case CIR", "Extended CIR", "NPMLE (manual)", "NPMLE")),
+  mutate(#method = factor(method, levels = c("cc", "extended", "npmle", "npmle_survival"),
+        #                 labels = c("Complete case CIR", "Extended CIR", "NPMLE (manual)", "NPMLE")),
          n = factor(n),
-         missing_bound = factor(missing_bound,
-                                levels = c(2.1, 1.8, 1.65),
-                                labels = c("Scenario 1", "Scenario 2", "Scenario 3")),
-         eval_upper_bound = factor(eval_upper_bound))
+         theta = factor(theta))
+         #missing_bound = factor(missing_bound,
+         #                       levels = c(2.1, 1.8, 1.65),
+        #                        labels = c("Scenario 1", "Scenario 2", "Scenario 3")),
+        # eval_upper_bound = factor(eval_upper_bound))
 
 
 
-summ <- dat %>% group_by(n, method, truth, missing_bound, eval_upper_bound) %>%
+summ <- dat %>% group_by(n, method, truth, theta) %>%
   summarize(nreps = n(),
             sample_size = mean(n_actual),
-            bias = mean(err),
-            coverage = mean(cov)) %>%
+            bias = mean(err)) %>%
   filter(nreps > 100)
 
-timeaverage_summ <- summ %>% group_by(n, method, missing_bound, eval_upper_bound) %>%
-  summarize(bias = mean(abs(bias)),
-            coverage = mean(coverage))
+timeaverage_summ <- summ %>% group_by(n, method, theta) %>%
+  summarize(bias = mean(abs(bias)))
+
+p_bias <- summ %>%
+  ggplot(aes(x = truth, group = n)) +
+  geom_line(aes(y = bias, linetype = n, color = n)) +
+  facet_grid(method~theta) +
+  theme_bw() +
+  geom_hline(yintercept = 0, color = "black") +
+  ylab("Bias") +
+  xlab("Symptom resolution probability") +
+  ggtitle("Nonresponse scenario") +
+  scale_linetype_manual(name = "Sample size", values = c("dotted", "dashed", "longdash", "solid")) +
+  scale_color_discrete(name = "Sample size") +
+  # scale_y_continuous(breaks = c(-0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03),
+  #                    labels = c("-0.03", "-0.02", "-0.01", "0.00", "0.01", "0.02", "0.03"),
+  #                    limits = c(-0.03, 0.03),
+  #                    sec.axis = sec_axis(~ . , name = "Method",
+  #                                        labels = NULL, breaks = NULL)) +
+  theme( plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
+         strip.background = element_blank(),
+         legend.position = "bottom",
+         axis.text = element_text(family = "Times New Roman"),
+         axis.title = element_text(family = "Times New Roman"),
+         strip.text = element_text(family = "Times New Roman"),
+         legend.title = element_text(family = "Times New Roman"),
+         legend.text = element_text(family = "Times New Roman"),
+         panel.grid.major.x = element_blank(),
+         panel.grid.minor.x = element_blank(),
+         panel.grid.minor.y = element_blank())
+
 
 p_timeaverage_bias <- timeaverage_summ %>%
   ggplot(aes(x = n, group = method)) +
