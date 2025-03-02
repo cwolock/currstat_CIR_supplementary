@@ -1,4 +1,4 @@
-do_one <- function(n, theta, method){
+do_one <- function(n, theta){
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
   start <- Sys.time()
@@ -6,20 +6,24 @@ do_one <- function(n, theta, method){
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
 
-
   y <- rweibull(n = n,
                 shape = 0.75,
                 scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
 
-  F_Y_of_y <- pweibull(y,
-                       shape = 0.75,
-                       scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
-  u <- runif(n = n, min = 0, max = 1)
-  h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
-  F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
-                                                 shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
-  t <- F_inverse_of_h_inverse_of_F_Y_of_y
-
+  if (theta == 0){
+    t <- rweibull(n = n,
+                  shape = 0.75,
+                  scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+  } else{
+    F_Y_of_y <- pweibull(y,
+                         shape = 0.75,
+                         scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+    u <- runif(n = n, min = 0, max = 1)
+    h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
+    F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
+                                                   shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+    t <- F_inverse_of_h_inverse_of_F_Y_of_y
+  }
 
   # mycop <- claytonCopula(param = theta, dim = 2)
   # u <- rCopula(n, mycop)
@@ -54,39 +58,40 @@ do_one <- function(n, theta, method){
   }
   eval_region <- c(0, eval_upper_bound+0.125)
 
-  if (method == "copula"){
-    res <- survML::currstatCIR_copula(time = dat$y,
-                                      event = dat$delta,
-                                      X = dat[,3:5],
-                                      SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
-                                                        V = 5,
-                                                        method = "method.NNLS"),
-                                      HAL_control = list(n_bins = c(5,10),
-                                                         grid_type = c("equal_mass", "equal_range"),
-                                                         V = 5),
-                                      eval_region = eval_region,
-                                      theta = theta)
-  } else if (method == "nocopula"){
-    res <- survML::currstatCIR(time = dat$y,
-                               event = dat$delta,
-                               X = dat[,3:5],
-                               SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
-                                                 V = 5,
-                                                 method = "method.NNLS"),
-                               HAL_control = list(n_bins = c(5,10),
-                                                  grid_type = c("equal_mass", "equal_range"),
-                                                  V = 5),
-                               eval_region = eval_region)
+  res_nocop <- survML::currstatCIR(time = dat$y,
+                                   event = dat$delta,
+                                   X = dat[,3:5],
+                                   SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+                                                     V = 5,
+                                                     method = "method.NNLS"),
+                                   HAL_control = list(n_bins = c(5,10),
+                                                      grid_type = c("equal_mass", "equal_range"),
+                                                      V = 5),
+                                   eval_region = eval_region)
+  res_nocop$method <- "nocopula"
+  res <- res_nocop
+  if (theta != 0){
+    res_cop <- survML::currstatCIR_copula(time = dat$y,
+                                          event = dat$delta,
+                                          X = dat[,3:5],
+                                          SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+                                                            V = 5,
+                                                            method = "method.NNLS"),
+                                          HAL_control = list(n_bins = c(5,10),
+                                                             grid_type = c("equal_mass", "equal_range"),
+                                                             V = 5),
+                                          eval_region = eval_region,
+                                          theta = theta)
+    res_cop$method <- "copula"
+    res <- bind_rows(res, res_cop)
   }
-
 
   res$S_hat_est <- 1 - res$S_hat_est
 
-  names(res) <- c("y", "cdf_estimate", "cil", "ciu")
+  names(res) <- c("y", "cdf_estimate", "cil", "ciu", "method")
   res$n <- n
   res$n_actual <- sum(!is.na(dat$delta))
   res$theta <- theta
-  res$method <- method
 
   n <- 5e5
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5) - 1,
