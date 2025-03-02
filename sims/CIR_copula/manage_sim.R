@@ -4,7 +4,7 @@ library(fdrtool)
 library(haldensify)
 #library(ChernoffDist)
 library(survML)
-library(copula)
+# library(copula)
 
 sim_name <- "CIR_copula_030125"
 nreps_total <- 500

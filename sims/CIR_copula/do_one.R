@@ -6,18 +6,31 @@ do_one <- function(n, theta, method){
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
 
-  mycop <- claytonCopula(param = theta, dim = 2)
-  u <- rCopula(n, mycop)
+
+  y <- rweibull(n = n,
+                shape = 0.75,
+                scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+
+  F_Y_of_y <- pweibull(y,
+                       shape = 0.75,
+                       scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+  u <- runif(n = n, min = 0, max = 1)
+  h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
+  F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
+                                                 shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+  t <- F_inverse_of_h_inverse_of_F_Y_of_y
+
+
+  # mycop <- claytonCopula(param = theta, dim = 2)
+  # u <- rCopula(n, mycop)
 
   # tau = theta/(theta + 2)
 
   # inverse cdf transform to get exponential marginals
-  t <- qweibull(p = u[,1],
-                shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
-  y <- qweibull(p = u[,2],
-                shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+  # t <- qweibull(p = u[,1],
+  #               shape = 0.75,
+  #               scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+
 
   # t <- rweibull(n,
   # shape = 0.75,
