@@ -3,7 +3,7 @@ library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
 setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_copula/")
-dat <- readRDS("CIR_copula_030125.rds")
+dat <- readRDS("CIR_copula_030325_knownF.rds")
 # dat <- dat %>% filter(missing_bound != -100) %>% select(-y_quant)
 
 # dat2 <- readRDS("CIR_testing_012925_npmlesurvfit.rds")

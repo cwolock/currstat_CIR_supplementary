@@ -30,6 +30,7 @@ do_one <- function(n, tau){
                                                    shape = 0.75, scale = weib_scale)
     t <- F_inverse_of_h_inverse_of_F_Y_of_y
     # mycop <- claytonCopula(param = theta, dim = 2)
+    #mycop <- claytonCopula(param = theta, dim = 2)
     # u <- rCopula(n, mycop)
     # y <- qweibull(p = u[,2],
     #               shape = 0.75,
