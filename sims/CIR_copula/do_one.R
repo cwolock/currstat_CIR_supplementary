@@ -1,4 +1,8 @@
-do_one <- function(n, theta){
+do_one <- function(n, tau){
+  tau_to_theta <- function(tau){
+    return(-2*tau/(tau - 1))
+  }
+  theta <- tau_to_theta(tau)
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
   start <- Sys.time()
@@ -25,7 +29,7 @@ do_one <- function(n, theta){
     F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
                                                    shape = 0.75, scale = weib_scale)
     t <- F_inverse_of_h_inverse_of_F_Y_of_y
-    mycop <- claytonCopula(param = theta, dim = 2)
+    # mycop <- claytonCopula(param = theta, dim = 2)
     # u <- rCopula(n, mycop)
     # y <- qweibull(p = u[,2],
     #               shape = 0.75,
@@ -75,18 +79,18 @@ do_one <- function(n, theta){
   }
   eval_region <- c(0, eval_upper_bound+0.125)
 
-  res_nocop <- survML::currstatCIR(time = dat$y,
-                                   event = dat$delta,
-                                   X = dat[,3:5],
-                                   SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
-                                                     V = 5,
-                                                     method = "method.NNLS"),
-                                   HAL_control = list(n_bins = c(5,10),
-                                                      grid_type = c("equal_mass", "equal_range"),
-                                                      V = 5),
-                                   eval_region = eval_region)
-  res_nocop$method <- "nocopula"
-  res <- res_nocop
+  # res_nocop <- survML::currstatCIR(time = dat$y,
+  #                                  event = dat$delta,
+  #                                  X = dat[,3:5],
+  #                                  SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+  #                                                    V = 5,
+  #                                                    method = "method.NNLS"),
+  #                                  HAL_control = list(n_bins = c(5,10),
+  #                                                     grid_type = c("equal_mass", "equal_range"),
+  #                                                     V = 5),
+  #                                  eval_region = eval_region)
+  # res_nocop$method <- "nocopula"
+  # res <- res_nocop
   if (theta != 0){
     res_cop <- survML::currstatCIR_copula(time = dat$y,
                                           event = dat$delta,
@@ -100,7 +104,8 @@ do_one <- function(n, theta){
                                           eval_region = eval_region,
                                           theta = theta)
     res_cop$method <- "copula"
-    res <- bind_rows(res, res_cop)
+    # res <- bind_rows(res, res_cop)
+    res <- res_cop
   }
 
   res$S_hat_est <- 1 - res$S_hat_est
@@ -115,7 +120,7 @@ do_one <- function(n, theta){
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
   weib_scale <- exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3])
-  t2 <- rweibull(n,
+  t <- rweibull(n,
                 shape = 0.75,
                 scale = weib_scale)
   pop_truths <- seq(0, 1, length.out = 501)

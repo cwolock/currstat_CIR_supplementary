@@ -13,13 +13,13 @@ nreps_per_job <- 1
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_copula/do_one.R")
 
 ns <- c(500, 1000, 1500, 2000)
-thetas <- c(-0.75, -0.2, 0, 0.25, 2.75)
+taus <- c(-0.1, -0.2, -0.3, -0.4, -0.5)
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
 param_grid <- expand.grid(mc_id = 1:njobs_per_combo,
                           n = ns,
-                          theta = thetas)
+                          tau = taus)
 
 job_id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
@@ -29,7 +29,7 @@ current_seed <- job_id
 set.seed(current_seed)
 output <- replicate(nreps_per_job,
                     do_one(n = current_dynamic_args$n,
-                           theta = current_dynamic_args$thetas),
+                           tau = current_dynamic_args$tau),
                     simplify = FALSE)
 sim_output <- lapply(as.list(1:length(output)),
                      function(x) tibble::add_column(output[[x]]))
