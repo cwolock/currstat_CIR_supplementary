@@ -6,7 +6,7 @@ library(haldensify)
 library(survML)
 # library(copula)
 
-sim_name <- "CIR_copula_030125"
+sim_name <- "CIR_copula_030325_knownF"
 nreps_total <- 500
 nreps_per_job <- 1
 
@@ -29,7 +29,7 @@ current_seed <- job_id
 set.seed(current_seed)
 output <- replicate(nreps_per_job,
                     do_one(n = current_dynamic_args$n,
-                           theta = current_dynamic_args$thetas),
+                           theta = current_dynamic_args$theta),
                     simplify = FALSE)
 sim_output <- lapply(as.list(1:length(output)),
                      function(x) tibble::add_column(output[[x]]))
