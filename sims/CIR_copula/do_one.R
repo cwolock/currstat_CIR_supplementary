@@ -8,22 +8,34 @@ do_one <- function(n, theta){
 
   y <- rweibull(n = n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
 
   if (theta == 0){
     t <- rweibull(n = n,
                   shape = 0.75,
-                  scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+                  scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   } else{
     F_Y_of_y <- pweibull(y,
                          shape = 0.75,
-                         scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+                         scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
     u <- runif(n = n, min = 0, max = 1)
     h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
     F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
-                                                   shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[2] + 0.1*w[,3]))
+                                                   shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))# - 0.2*w[2] + 0.1*w[,3]))
     t <- F_inverse_of_h_inverse_of_F_Y_of_y
+    # mycop <- claytonCopula(param = theta, dim = 2)
+    # u <- rCopula(n, mycop)
+    # y <- qweibull(p = u[,2],
+    #               shape = 0.75,
+    #               scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
+    # t <- qweibull(p = u[,1],
+    #               shape = 0.75,
+    #               scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   }
+
+  kendalls <- cor(t, y, method = "kendall")
+  # print(kendalls)
+  # print(tau(copula = mycop))
 
   # mycop <- claytonCopula(param = theta, dim = 2)
   # u <- rCopula(n, mycop)
@@ -97,9 +109,9 @@ do_one <- function(n, theta){
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5) - 1,
              2*rbinom(n, size = 1, prob = 0.5)-1,
              2*rbinom(n, size = 1, prob = 0.5)-1)
-  t <- rweibull(n,
+  t2 <- rweibull(n,
                 shape = 0.75,
-                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
+                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))#exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   pop_truths <- seq(0, 1, length.out = 501)
   pop_taus <- quantile(t, probs = pop_truths)
 
@@ -113,6 +125,7 @@ do_one <- function(n, theta){
 
   res$truth <- sample_truths
   res$tau <- sample_taus
+  res$kendall <- kendalls
 
   res <- res %>% filter(y <= eval_upper_bound)
 
