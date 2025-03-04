@@ -41,7 +41,9 @@ do_one <- function(n, tau){
     #               scale = weib_scale)#exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   }
 
-  problem <- max(qweibull(2^(1/theta), shape = 0.75, scale = weib_scale))
+  problem <- ifelse(theta < 0,
+                    max(qweibull(2^(1/theta), shape = 0.75, scale = weib_scale)),
+                    0)
 
   kendalls <- cor(t, y, method = "kendall")
   # kendalls1 <- cor(t[w[,1] == 1], y[w[,1] == 1], method = "kendall")
