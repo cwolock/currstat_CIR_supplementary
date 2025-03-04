@@ -6,14 +6,14 @@ library(haldensify)
 library(survML)
 # library(copula)
 
-sim_name <- "CIR_copula_030325_knownF"
+sim_name <- "CIR_copula_030325_known_nuis"
 nreps_total <- 500
 nreps_per_job <- 1
 
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_copula/do_one.R")
 
 ns <- c(500, 1000, 1500, 2000)
-taus <- c(-0.1, -0.2, -0.3, -0.4, -0.5)
+taus <- c(0.5, 0.4, 0.3, 0.2, 0.1, -0.1, -0.2, -0.3, -0.4, -0.5)
 
 njobs_per_combo <- nreps_total/nreps_per_job
 
