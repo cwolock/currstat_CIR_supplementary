@@ -3,7 +3,7 @@ library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
 setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_copula/")
-dat <- readRDS("CIR_copula_030325_knownF.rds")
+dat <- readRDS("CIR_copula_030325_known_nuis.rds")
 # dat <- dat %>% filter(missing_bound != -100) %>% select(-y_quant)
 
 # dat2 <- readRDS("CIR_testing_012925_npmlesurvfit.rds")
@@ -29,19 +29,19 @@ dat <- dat %>% filter(round(truth, digits = 2) <= 0.95 & round(truth, digits = 2
 
 
 
-summ <- dat %>% group_by(n, method, truth, theta) %>%
+summ <- dat %>% group_by(n, method, truth, theo_kendall) %>%
   summarize(nreps = n(),
             sample_size = mean(n_actual),
             bias = mean(err)) %>%
   filter(nreps > 100)
 
-timeaverage_summ <- summ %>% group_by(n, method, theta) %>%
+timeaverage_summ <- summ %>% group_by(n, method, theo_kendall) %>%
   summarize(bias = mean(abs(bias)))
 
 p_bias <- summ %>%
   ggplot(aes(x = truth, group = n)) +
   geom_line(aes(y = bias, linetype = n, color = n)) +
-  facet_grid(method~theta) +
+  facet_grid(method~theo_kendall) +
   theme_bw() +
   geom_hline(yintercept = 0, color = "black") +
   ylab("Bias") +
