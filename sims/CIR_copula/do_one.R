@@ -3,6 +3,7 @@ do_one <- function(n, tau){
     return(-2*tau/(tau - 1))
   }
   theta <- tau_to_theta(tau)
+  theo_kendall <- tau
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
   start <- Sys.time()
@@ -39,6 +40,8 @@ do_one <- function(n, tau){
     #               shape = 0.75,
     #               scale = weib_scale)#exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   }
+
+  problem <- max(qweibull(2^(1/theta), shape = 0.75, scale = weib_scale))
 
   kendalls <- cor(t, y, method = "kendall")
   # kendalls1 <- cor(t[w[,1] == 1], y[w[,1] == 1], method = "kendall")
@@ -78,7 +81,7 @@ do_one <- function(n, tau){
     dat$delta[dat$y > missing_bound] <- NA
     dat$y[dat$y > missing_bound] <- missing_bound
   }
-  eval_region <- c(0, eval_upper_bound+0.125)
+  eval_region <- c(problem, eval_upper_bound+0.125)
 
   # res_nocop <- survML::currstatCIR(time = dat$y,
   #                                  event = dat$delta,
@@ -137,7 +140,8 @@ do_one <- function(n, tau){
 
   res$truth <- sample_truths
   res$tau <- sample_taus
-  res$kendall <- kendalls
+  res$emp_kendall <- kendalls
+  res$theo_kendall <- theo_kendall
 
   res <- res %>% filter(y <= eval_upper_bound)
 
