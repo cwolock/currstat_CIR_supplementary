@@ -1,4 +1,8 @@
-do_one <- function(theta){
+do_one <- function(tau){
+  tau_to_theta <- function(tau){
+    return(-2*tau/(tau - 1))
+  }
+  theta <- tau_to_theta(tau)
 
   # dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/copula/long_covid_truncated_120_021825_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
   # nuisances <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/copula/saved_nuisances.rds")
@@ -32,7 +36,7 @@ do_one <- function(theta){
                                                     n_eval_pts = 1001,
                                                     eval_region = c(0, 115),
                                                     theta = theta)
-  res$theta <- theta
+  res$tau <- tau
 
   return(res)
 
