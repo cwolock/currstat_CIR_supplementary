@@ -85,18 +85,18 @@ do_one <- function(n, tau){
   }
   eval_region <- c(problem, eval_upper_bound+0.125)
 
-  res_nocop <- survML::currstatCIR(time = dat$y,
-                                   event = dat$delta,
-                                   X = dat[,3:5],
-                                   SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
-                                                     V = 5,
-                                                     method = "method.NNLS"),
-                                   HAL_control = list(n_bins = c(5,10),
-                                                      grid_type = c("equal_mass", "equal_range"),
-                                                      V = 5),
-                                   eval_region = eval_region)
-  res_nocop$method <- "nocopula"
-  res <- res_nocop
+  # res_nocop <- survML::currstatCIR(time = dat$y,
+  #                                  event = dat$delta,
+  #                                  X = dat[,3:5],
+  #                                  SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.earth", "SL.gam", "SL.ranger"),
+  #                                                    V = 5,
+  #                                                    method = "method.NNLS"),
+  #                                  HAL_control = list(n_bins = c(5,10),
+  #                                                     grid_type = c("equal_mass", "equal_range"),
+  #                                                     V = 5),
+  #                                  eval_region = eval_region)
+  # res_nocop$method <- "nocopula"
+  # res <- res_nocop
   if (theta != 0){
     res_cop <- survML::currstatCIR_copula(time = dat$y,
                                           event = dat$delta,
@@ -110,7 +110,8 @@ do_one <- function(n, tau){
                                           eval_region = eval_region,
                                           theta = theta)
     res_cop$method <- "copula"
-    res <- bind_rows(res, res_cop)
+    res <- res_cop
+    # res <- bind_rows(res, res_cop)
   }
 
   res$S_hat_est <- 1 - res$S_hat_est
