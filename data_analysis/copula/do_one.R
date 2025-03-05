@@ -25,7 +25,7 @@ do_one <- function(tau){
   # theta <- tau_to_theta(tau)
   # F_n_inverse(2^(1/theta))
 
-
+  print("hello")
   res <- survML::currstatCIR_copula_saved_nuisances(time = dat$y,
                                                     event = dat$delta,
                                                     X = dat[,!(names(dat) %in% c("y", "delta"))],
