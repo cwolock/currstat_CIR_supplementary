@@ -32,6 +32,7 @@ do_one <- function(tau){
                                                     mu_n = nuisances$mu_n,
                                                     f_sIx_n = nuisances$f_sIx_n,
                                                     f_s_n = nuisances$f_s_n,
+                                                    F_sIx_n = nuisances$F_sIx_n,
                                                     # g_n = nuisances$g_n,
                                                     Riemann_grid = nuisances$Riemann_grid,
                                                     n_eval_pts = 1001,
