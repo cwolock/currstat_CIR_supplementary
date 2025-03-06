@@ -10,7 +10,6 @@ do_one <- function(tau){
   nuisances <- readRDS("/home/cwolock/currstat_CIR_supplementary/data_analysis/copula/saved_nuisances.rds")
 
   dat <- dat %>% select(-record_id)
-
   names(dat)[names(dat) == "time_event"] <- "y"
   names(dat)[names(dat) == "resolution"] <- "delta"
   # dat$y[is.na(dat$delta)] <- max(dat$y, na.rm = TRUE)
@@ -25,7 +24,6 @@ do_one <- function(tau){
   # theta <- tau_to_theta(tau)
   # F_n_inverse(2^(1/theta))
 
-  print("hello")
   res <- survML::currstatCIR_copula_saved_nuisances(time = dat$y,
                                                     event = dat$delta,
                                                     X = dat[,!(names(dat) %in% c("y", "delta"))],
