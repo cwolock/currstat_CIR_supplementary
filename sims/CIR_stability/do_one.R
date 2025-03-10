@@ -32,8 +32,9 @@ do_one <- function(n, method, interaction){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    methods <- c("glm_parametric", "gam_parametric", "SL4_parametric", "xgboost_parametric",
-                 "glm_HAL", "gam_HAL", "SL4_HAL", "xgboost_HAL")
+    # methods <- c("glm_parametric", "gam_parametric", "SL4_parametric", "xgboost_parametric",
+    #              "glm_HAL", "gam_HAL", "SL4_HAL", "xgboost_HAL")
+    methods <- c("known_known", "known_parametric", "known_HAL", "glm_known", "gam_known", "SL4_known", "xgboost_known")
   } else{
     methods <- method
   }
@@ -197,7 +198,61 @@ do_one <- function(n, method, interaction){
                                  eval_region = eval_region,
                                  g_nuisance = "parametric",
                                  mu_nuisance = "xgboost")
+    } else if (method == "known_known"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "known",
+                                 mu_nuisance = "known")
+    } else if (method == "known_parametric"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "parametric",
+                                 mu_nuisance = "known")
+    } else if (method == "known_HAL"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 HAL_control = list(n_bins = c(5,10),
+                                                    grid_type = c("equal_mass", "equal_range"),
+                                                    V = 5),
+                                 mu_nuisance = "known")
+    } else if (method == "glm_known"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "known",
+                                 mu_nuisance = "glm")
+    } else if (method == "gam_known"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "known",
+                                 mu_nuisance = "gam")
+    } else if (method == "SL4_known"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 SL_control = list(SL.library = c("SL.mean", "SL.glm", "SL.gam", "SL.earth", "SL.ranger"),
+                                                   V = 5,
+                                                   method = "method.NNLS"),
+                                 g_nuisance = "known")
+    } else if (method == "xgboost_known"){
+      res <- survML::currstatCIR(time = dat$y,
+                                 event = dat$delta,
+                                 X = dat[,3:5],
+                                 eval_region = eval_region,
+                                 g_nuisance = "known",
+                                 mu_nuisance = "xgboost")
     }
+
 
     mu_n <- res$mu_n
     f_sIx_n <- res$f_sIx_n
