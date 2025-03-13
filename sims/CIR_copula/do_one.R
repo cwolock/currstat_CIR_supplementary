@@ -1,8 +1,22 @@
-do_one <- function(n, tau){
-  tau_to_theta <- function(tau){
-    return(-2*tau/(tau - 1))
+do_one <- function(n, tau, copula = "frank"){
+  if (copula == "clayton"){
+    tau_to_theta <- function(tau){
+      return(-2*tau/(tau - 1))
+    }
+    theta <- tau_to_theta(tau)
+  } else if (copula == "frank"){
+    tau_to_theta <- function(tau){
+      thetas <- c(seq(-10, -0.01, by = 0.01), seq(0.01, 10, by = 0.01))
+      taus <- rep(NA, length(thetas))
+      for (i in 1:length(thetas)){
+        mycop <- copula::frankCopula(param = thetas[i])
+        taus[i] <- copula::tau(mycop)
+      }
+      return(thetas[which.min(abs(taus - tau))])
+    }
+    theta <- tau_to_theta(tau)
   }
-  theta <- tau_to_theta(tau)
+
   theo_kendall <- tau
   missing_bound <- 1.65
   eval_upper_bound <- 1.5
@@ -26,7 +40,12 @@ do_one <- function(n, tau){
                          shape = 0.75,
                          scale = weib_scale)
     u <- runif(n = n, min = 0, max = 1)
-    h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
+    if (copula == "clayton"){
+      h_inverse_of_F_Y_of_y <- (1 + F_Y_of_y^(-theta)*(u^(-theta/(theta + 1))-1))^(-1/theta)
+    } else if (copula == "frank"){
+      h_inverse_of_F_Y_of_y <- -(1/theta)*log(1 - (u*(1 - exp(-theta)))/(exp(-theta * F_Y_of_y) + u*(1 - exp(-theta*F_Y_of_y))))
+    }
+
     F_inverse_of_h_inverse_of_F_Y_of_y <- qweibull(p = h_inverse_of_F_Y_of_y,
                                                    shape = 0.75, scale = weib_scale)
     t <- F_inverse_of_h_inverse_of_F_Y_of_y
@@ -41,7 +60,7 @@ do_one <- function(n, tau){
     #               scale = weib_scale)#exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3]))
   }
 
-  problem <- ifelse(theta < 0,
+  problem <- ifelse(theta < 0 & copula == "clayton",
                     max(qweibull(2^(1/theta), shape = 0.75, scale = weib_scale)),
                     0)
 
@@ -83,7 +102,8 @@ do_one <- function(n, tau){
     dat$delta[dat$y > missing_bound] <- NA
     dat$y[dat$y > missing_bound] <- missing_bound
   }
-  eval_region <- c(problem, eval_upper_bound+0.125)
+  print(problem)
+  eval_region <- c(0, eval_upper_bound+0.125)
 
   res_nocop <- survML::currstatCIR(time = dat$y,
                                    event = dat$delta,
@@ -108,7 +128,8 @@ do_one <- function(n, tau){
                                                              grid_type = c("equal_mass", "equal_range"),
                                                              V = 5),
                                           eval_region = eval_region,
-                                          theta = theta)
+                                          theta = theta,
+                                          copula = copula)
     res_cop$method <- "copula"
     # res <- res_cop
     res <- bind_rows(res, res_cop)
@@ -145,6 +166,7 @@ do_one <- function(n, tau){
   res$emp_kendall <- kendalls
   res$theo_kendall <- theo_kendall
   res$lower_bound <- problem
+  res$copula <- copula
 
   res <- res %>% filter(y <= eval_upper_bound)
 
