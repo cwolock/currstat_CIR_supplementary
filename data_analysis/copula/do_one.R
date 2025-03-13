@@ -1,4 +1,5 @@
 do_one <- function(tau){
+  start <- Sys.time()
   tau_to_theta <- function(tau){
     return(-2*tau/(tau - 1))
   }
@@ -37,7 +38,9 @@ do_one <- function(tau){
                                                     eval_region = c(0, 115),
                                                     theta = theta)
   res$tau <- tau
-
+  end <- Sys.time()
+  runtime <- difftime(end, start, units = "min")
+  res$runtime <- runtime
   return(res)
 
 }
