@@ -1,18 +1,14 @@
 library(SuperLearner)
 library(dplyr)
-library(fdrtool)
-library(haldensify)
-#library(ChernoffDist)
 library(survML)
-# library(copula)
 
-sim_name <- "CIR_copula_030325_known_nuis"
+sim_name <- "CIR_copula_030325"
 nreps_total <- 500
 nreps_per_job <- 1
 
 source("/home/cwolock/currstat_CIR_supplementary/sims/CIR_copula/do_one.R")
 
-ns <- c(500, 1000, 1500, 2000)
+ns <- c(500, 1000, 2000, 4000)
 taus <- c(0.35, 0.25, 0.15, 0.05, -0.05, -0.15, -0.25, -0.35)
 
 njobs_per_combo <- nreps_total/nreps_per_job

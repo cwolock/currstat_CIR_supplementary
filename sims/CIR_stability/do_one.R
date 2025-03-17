@@ -10,11 +10,9 @@ do_one <- function(n, method, interaction){
   t <- rweibull(n,
                 shape = 0.75,
                 scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
-  # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
   y <- rweibull(n,
                 shape = 0.75,
                 scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/5*w[,1]*w[,2] + beta_int/5*w[,1]*w[,3] - beta_int/5*w[,2]*w[,3]))
-  # y <- rlnorm(n, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
 
   # round c to nearest quantile of c, just so there aren't so many unique values
   quants <- quantile(y, probs = seq(0, 1, by = 0.02), type = 1)
@@ -32,9 +30,9 @@ do_one <- function(n, method, interaction){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    # methods <- c("glm_parametric", "gam_parametric", "SL4_parametric", "xgboost_parametric",
-    #              "glm_HAL", "gam_HAL", "SL4_HAL", "xgboost_HAL")
-    methods <- c("known_known", "known_parametric", "known_HAL", "glm_known", "gam_known", "SL4_known", "xgboost_known")
+    methods <- c("glm_parametric", "gam_parametric", "SL4_parametric", "xgboost_parametric",
+                 "glm_HAL", "gam_HAL", "SL4_HAL", "xgboost_HAL", "known_known", "known_parametric",
+                 "known_HAL", "glm_known", "gam_known", "SL4_known", "xgboost_known")
   } else{
     methods <- method
   }
@@ -278,7 +276,6 @@ do_one <- function(n, method, interaction){
     t <- rweibull(n,
                   shape = 0.75,
                   scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
-    # scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2]))
     pop_truths <- seq(0, 1, length.out = 501)
     pop_taus <- quantile(t, probs = pop_truths)
 
@@ -304,13 +301,11 @@ do_one <- function(n, method, interaction){
       this_truth_mu <- pweibull(q = this_tau,
                                 shape = 0.75,
                                 scale =  exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int*w[,1]*w[,2] + beta_int*w[,1]*w[,3] - beta_int*w[,2]*w[,3]))
-      # this_truth_mu <- pweibull(q = this_tau, shape = 0.75, scale = exp(0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2] ))
       this_mu_n <- apply(X = w, MARGIN = 1, FUN = function(x) mu_n(y = this_tau, w = x))
       sample_MSEs_mu[i] <- mean((this_truth_mu - this_mu_n)^2)
       this_truth_g <- dweibull(x = this_tau,
                                shape = 0.75,
                                scale = exp(0.4*w[,1] - 0.2*w[,2] + 0.1*w[,3] + beta_int/5*w[,1]*w[,2] + beta_int/5*w[,1]*w[,3] - beta_int/5*w[,2]*w[,3]))
-      # this_truth_g <- dlnorm(x = this_tau, meanlog = 0.4*w[,1] - 0.2*w[,2] + beta_int*w[,1]*w[,2], sdlog = 1)
       this_g_n <- apply(X = w, MARGIN = 1, FUN = function(x) f_sIx_n(y = this_tau, w = x))
       sample_MSEs_g[i] <- mean((this_truth_g - this_g_n)^2)
     }
