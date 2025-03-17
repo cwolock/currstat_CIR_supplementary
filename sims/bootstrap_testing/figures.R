@@ -72,12 +72,14 @@ p_175 <- summ %>% filter(missing_bound == 1.65) %>%
   theme(strip.background = element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12, family = "Times New Roman"),
         legend.position="bottom",
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, family = "Times New Roman"),
         axis.text.y = element_text(family = "Times New Roman"),
         axis.title = element_text(family = "Times New Roman"),
         strip.text = element_text(family = "Times New Roman"),
         legend.title = element_text(family = "Times New Roman"),
-        legend.text = element_text(family = "Times New Roman"))
+        legend.text = element_text(family = "Times New Roman"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank())
 
 p_190 <- summ %>% filter(missing_bound == 1.8) %>%
   ggplot(aes(x = n, group = type)) +
@@ -106,7 +108,9 @@ p_190 <- summ %>% filter(missing_bound == 1.8) %>%
         axis.title = element_text(family = "Times New Roman"),
         strip.text = element_text(family = "Times New Roman"),
         legend.title = element_text(family = "Times New Roman"),
-        legend.text = element_text(family = "Times New Roman"))
+        legend.text = element_text(family = "Times New Roman"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank())
 
 p_210 <- summ %>% filter(missing_bound == 2.10) %>%
   ggplot(aes(x = n, group = type)) +
@@ -135,23 +139,25 @@ p_210 <- summ %>% filter(missing_bound == 2.10) %>%
         axis.title = element_text(family = "Times New Roman"),
         strip.text = element_text(family = "Times New Roman"),
         legend.title = element_text(family = "Times New Roman"),
-        legend.text = element_text(family = "Times New Roman"))
+        legend.text = element_text(family = "Times New Roman"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank())
 
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen1_021525.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen1_031025.pdf",
        plot = p_175,
        device = "pdf",
        width = 7,
        height = 5,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen2_021525.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen2_031025.pdf",
        plot = p_190,
        device = "pdf",
        width = 7,
        height = 5,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen3_021525.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/bootstrap_testing/icenReg_boot_test_scen3_031025.pdf",
        plot = p_210,
        device = "pdf",
        width = 7,

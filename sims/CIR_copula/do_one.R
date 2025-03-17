@@ -34,7 +34,7 @@ do_one <- function(n, tau){
                                                  shape = 0.75, scale = weib_scale)
   t <- F_inverse_of_h_inverse_of_F_Y_of_y
 
-  emp_kendall <- cor(t, y, method = "kendall")
+  emp_tau<- cor(t, y, method = "kendall")
 
   # round c to nearest quantile of c, just so there aren't so many unique values
   quants <- quantile(y, probs = seq(0, 1, by = 0.02), type = 1)
@@ -65,16 +65,15 @@ do_one <- function(n, tau){
                              copula_control = list(taus = tau))
   res_nocop <- res$primary_results %>%
     select(t, S_hat_est) %>%
-    mutate(tau = 0, method = "nocopula")
+    mutate(tau = tau, method = "nocopula")
   res_cop <- res$sensitivity_results[[1]] %>% mutate(method = "copula")
   res <- bind_rows(res_nocop, res_cop)
 
   res$S_hat_est <- 1 - res$S_hat_est
 
-  names(res) <- c("y", "cdf_estimate", "method")
+  names(res) <- c("y", "cdf_estimate", "tau", "method")
   res$n <- n
   res$n_actual <- sum(!is.na(dat$delta))
-  res$theta <- theta
 
   n <- 5e5
   w <- cbind(2*rbinom(n, size = 1, prob = 0.5) - 1,
@@ -88,17 +87,13 @@ do_one <- function(n, tau){
   pop_taus <- quantile(t, probs = pop_truths)
 
   sample_truths <- rep(NA, nrow(res))
-  sample_taus <- rep(NA, nrow(res))
   for (i in 1:nrow(res)){
     index <- which.min(abs(res$y[i] - pop_taus))
     sample_truths[i] <- pop_truths[index]
-    sample_taus[i] <- pop_taus[index]
   }
 
   res$truth <- sample_truths
-  res$tau <- sample_taus
-  res$emp_kendall <- emp_kendall
-  res$theo_kendall <- theo_kendall
+  res$emp_tau <- emp_tau
 
   res <- res %>% filter(y <= eval_upper_bound)
 
