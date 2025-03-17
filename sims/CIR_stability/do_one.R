@@ -32,9 +32,8 @@ do_one <- function(n, method, interaction){
   eval_region <- c(0, eval_upper_bound+0.125)
 
   if (method == "multi"){
-    # methods <- c("glm_parametric", "gam_parametric", "SL4_parametric", "xgboost_parametric",
-    #              "glm_HAL", "gam_HAL", "SL4_HAL", "xgboost_HAL")
-    methods <- c("known_known", "known_parametric", "known_HAL", "glm_known", "gam_known", "SL4_known", "xgboost_known")
+    methods <- c("SL4_HAL", "xgboost_HAL", "known_known", 
+		"known_HAL", "SL4_known", "xgboost_known")
   } else{
     methods <- method
   }

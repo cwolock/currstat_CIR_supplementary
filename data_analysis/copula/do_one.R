@@ -1,4 +1,5 @@
-do_one <- function(tau, coplua = "frank"){
+do_one <- function(tau, copula = "frank"){
+  start <- Sys.time()
   if (copula == "clayton"){
     tau_to_theta <- function(tau){
       return(-2*tau/(tau - 1))
