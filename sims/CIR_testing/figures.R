@@ -2,31 +2,20 @@ library(tidyverse)
 library(extrafont)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-setwd("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/")
-dat <- readRDS("CIR_testing_021325_withint.rds")
-# dat <- dat %>% filter(missing_bound != -100) %>% select(-y_quant)
-
-# dat2 <- readRDS("CIR_testing_012925_npmlesurvfit.rds")
-
-# dat <- rbind(dat, dat2)
+setwd("/home/cwolock/currstat_CIR_supplementary/sims/CIR_testing/")
+dat <- readRDS("CIR_testing_021325.rds")
 
 messed_up <- dat %>% filter(is.na(cdf_estimate) | is.na(cil) | is.na(ciu))
 
 dat <- dat %>% filter(!(is.na(cdf_estimate) | is.na(cil) | is.na(ciu)))
-
-dat <- dat %>% mutate(cdf_estimate = ifelse(method != "npmle_survival", 1 - cdf_estimate, cdf_estimate),
-                      ciu_temp = ciu,
-                      cil_temp = cil,
-                      cil = ifelse(method != "npmle_survival", 1 - ciu_temp, cil_temp),
-                      ciu = ifelse(method != "npmle_survival", 1 - cil_temp, ciu_temp))
 
 dat <- dat %>% mutate(err = cdf_estimate - truth,
                       cov = ifelse(cil <= truth & ciu >= truth, 1, 0),
                       truth = round(truth, digits = 2))
 
 dat <- dat %>% filter(round(truth, digits = 2) <= 0.95 & round(truth, digits = 2) >= 0.05) %>%
-  mutate(method = factor(method, levels = c("cc", "extended", "npmle", "npmle_survival"),
-                         labels = c("Complete case CIR", "Extended CIR", "NPMLE (manual)", "NPMLE")),
+  mutate(method = factor(method, levels = c("cc", "extended", "npmle_survival"),
+                         labels = c("Complete case CIR", "Extended CIR", "NPMLE")),
          n = factor(n),
          missing_bound = factor(missing_bound,
                                 levels = c(2.1, 1.8, 1.65),
@@ -144,28 +133,28 @@ p_coverage <- summ %>%
          panel.grid.minor.x = element_blank(),
          panel.grid.minor.y = element_blank())
 
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/bias_plot_021425.pdf",
+ggsave(filename = "bias_plot_021425.pdf",
        plot = p_bias,
        device = "pdf",
        width = 7,
        height = 6,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/coverage_plot_021425.pdf",
+ggsave(filename = "coverage_plot_021425.pdf",
        plot = p_coverage,
        device = "pdf",
        width = 7,
        height = 6,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/timeave_bias_plot_021425.pdf",
+ggsave(filename = "timeave_bias_plot_021425.pdf",
        plot = p_timeaverage_bias,
        device = "pdf",
        width = 7,
        height = 4.0,
        dpi = 300,
        units = "in")
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/sims/CIR_testing/timeave_coverage_plot_021425.pdf",
+ggsave(filename = "timeave_coverage_plot_021425.pdf",
        plot = p_timeaverage_cov,
        device = "pdf",
        width = 7,

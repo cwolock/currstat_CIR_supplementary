@@ -27,25 +27,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
   eval_region <- c(0, eval_upper_bound+0.125)
 
 
-  if (method == "npmle"){
-    dat_cc <- dat %>% filter(!is.na(delta))
-    y_vals <- sort(unique(dat_cc$y))
-    F_n <- stats::ecdf(dat_cc$y)
-    F_n_inverse <- function(t){
-      stats::quantile(dat_cc$y, probs = t, type = 1)
-    }
-    eval_cdf_upper <- mean(dat_cc$y <= eval_region[2])
-    eval_cdf_lower <- mean(dat_cc$y <= eval_region[1])
-    x <- sapply(seq(eval_cdf_lower, eval_cdf_upper, length.out = 101), F_n_inverse)
-    fit <- isoreg(dat_cc$y, dat_cc$delta)
-    xvals <- sort(fit$x)
-    yvals <- fit$yf
-    fn <- stepfun(xvals, c(yvals[1], yvals))
-    res <- data.frame(t = x)
-    res$cdf_estimate = apply(matrix(x), MARGIN = 1, FUN = fn)
-    res$cil <- NA
-    res$ciu <- NA
-  } else if (method == "npmle_survival"){
+  if (method == "npmle_survival"){
     dat_cc <- dat %>% filter(!is.na(delta))
 
     icen_form <- icenReg::cs2ic(time = dat_cc$y,
@@ -83,7 +65,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
                                HAL_control = list(n_bins = c(5,10),
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
-                               eval_region = eval_region)
+                               eval_region = eval_region)$primary_results
     res$S_hat_est <- 1 - res$S_hat_est
     temp_cil <- res$S_hat_cil
     temp_ciu <- res$S_hat_ciu
@@ -99,7 +81,7 @@ do_one <- function(n, missing_bound, method, eval_upper_bound){
                                HAL_control = list(n_bins = c(5,10),
                                                   grid_type = c("equal_mass", "equal_range"),
                                                   V = 5),
-                               eval_region = eval_region)
+                               eval_region = eval_region)$primary_results
     res$S_hat_est <- 1 - res$S_hat_est
     temp_cil <- res$S_hat_cil
     temp_ciu <- res$S_hat_ciu

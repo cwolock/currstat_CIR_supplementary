@@ -1,11 +1,10 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_copula_030325_known_nuis"
-nreps_total <- 500
+sim_name <- "CIR_copula_031325_frank"
+nreps_total <- 1
 nreps_per_job <- 1
 
-ns <- c(500, 1000, 1500, 2000)
-thetas <- c(1, 2, 3, 4, 5,6,7,8,9,10)
+taus <- seq(1,70)
 ## set up directories for output, plots
 output_dir <- "output/"
 
@@ -14,8 +13,7 @@ output_dir <- "output/"
 nreps_per_combo <- nreps_total/nreps_per_job
 ## set up grid of parameters
 param_grid <- expand.grid(mc_id = 1:nreps_per_combo,
-                          n = ns,
-			theta = thetas)
+			tau = taus)
 
 ## names of files to read in
 output_nms <- paste0(sim_name, "_", 1:dim(param_grid)[1], ".rds")

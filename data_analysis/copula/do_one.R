@@ -1,4 +1,5 @@
-do_one <- function(tau, coplua = "frank"){
+do_one <- function(tau, copula = "frank"){
+  start <- Sys.time()
   if (copula == "clayton"){
     tau_to_theta <- function(tau){
       return(-2*tau/(tau - 1))
@@ -23,7 +24,6 @@ do_one <- function(tau, coplua = "frank"){
   nuisances <- readRDS("/home/cwolock/currstat_CIR_supplementary/data_analysis/copula/saved_nuisances.rds")
 
   dat <- dat %>% select(-record_id)
-
   names(dat)[names(dat) == "time_event"] <- "y"
   names(dat)[names(dat) == "resolution"] <- "delta"
   # dat$y[is.na(dat$delta)] <- max(dat$y, na.rm = TRUE)
@@ -53,8 +53,10 @@ do_one <- function(tau, coplua = "frank"){
                                                     theta = theta,
                                                     copula = copula)
   res$tau <- tau
+  end <- Sys.time()
+  runtime <- difftime(end, start, units = "min")
+  res$runtime <- runtime
   res$copula <- copula
-
   return(res)
 
 }
