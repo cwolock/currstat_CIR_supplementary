@@ -1,10 +1,10 @@
 #!/usr/local/bin/Rscript
 
-sim_name <- "CIR_copula_031325_frank_biggerN"
+sim_name <- "CIR_copula_031725"
 nreps_total <- 500
 nreps_per_job <- 1
 
-ns <- c(500, 1000, 1500, 2000)
+ns <- c(500, 1000, 2000, 4000)
 thetas <- c(1, 2, 3, 4, 5,6,7,8)
 ## set up directories for output, plots
 output_dir <- "output/"
