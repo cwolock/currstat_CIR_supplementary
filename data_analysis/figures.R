@@ -4,7 +4,7 @@ library(gridExtra)
 library(ggpubr)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
-dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_022425_noinconclusives_fixedexpdates_keepinvitedbothyears_wlag.rds")
+dat <- readRDS("/home/cwolock/currstat_CIR_supplementary/long_covid_data.rds")
 
 dat_resp <- dat %>% filter(!is.na(resolution))
 dat_nresp <- dat %>% filter(is.na(resolution))
@@ -94,8 +94,6 @@ median(dat$time_event[!is.na(dat$time_event) & dat$time_event < 120])
 quantile(dat$time_event[!is.na(dat$time_event) & dat$time_event < 120], probs = c(0.25, 0.75))
 
 
-
-
 # hisotgram of response times
 p <- dat %>%
   filter(time_event < 120) %>%
@@ -107,7 +105,7 @@ p <- dat %>%
   ylab("Number of respondents") +
   theme(axis.title = element_text(family = "Times New Roman"),
         axis.text = element_text(family = "Times New Roman"))
-ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/response_times_histogram_022425.pdf",
+ggsave(plot = p, filename = "response_times_histogram_022425.pdf",
        device = "pdf",
        dpi = 300,
        width = 7,
@@ -125,7 +123,7 @@ p <- dat %>%
   ylab("Number of invitees") +
   theme(axis.title = element_text(family = "Times New Roman"),
         axis.text = element_text(family = "Times New Roman"))
-ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/invite_lag_times_histogram_022425.pdf",
+ggsave(plot = p, filename = "invite_lag_times_histogram_022425.pdf",
        device = "pdf",
        dpi = 300,
        width = 7,
@@ -134,20 +132,7 @@ ggsave(plot = p, filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplement
 
 
 # CIR results
-# fit <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/chu_lab/susan/data/CIR_results_correct_063024_trunc120_window115rds")
-fit <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_022425_trunc120_window115_noinconclusives_fixedexpdates_keepinvitedbothyears.rds")
-
-# fit <- fit %>% mutate(x = as.numeric(x), #x_quants = as.numeric(x_quants),
-#                       y = as.numeric(y), y_low = as.numeric(y_low),
-#                       y_hi = as.numeric(y_hi))
-# # fit <- fit %>% select(-x_quants)
-# # isotonize confidence bands?
-# fit$y_low <- Iso::pava(fit$y_low)
-# fit$y_hi <- Iso::pava(fit$y_hi)
-# fit$y <- 1 - fit$y
-# fit$y_low <- 1 - fit$y_low
-# fit$y_hi <- 1 - fit$y_hi
-
+fit <- readRDS("/home/cwolock/currstat_CIR_supplementary/long_covid_data.rds")
 
 lims <- c(27, 95)
 breaks <- c(30, 45, 60, 75, 90)
@@ -208,7 +193,7 @@ p_both <- grid.arrange(p1.common.x,
                        heights = c(1, 0.5))
 
 # p_both <- ggarrange(p, p2, nrow = 2)
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_031025.pdf",
+ggsave(filename = "CIR_results_031025.pdf",
        plot = p_both,
        device="pdf", width = 7,
        height=5, units="in", dpi=300)
