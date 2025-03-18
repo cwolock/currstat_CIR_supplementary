@@ -1,4 +1,3 @@
-library(icenReg)
 library(tidyverse)
 library(extrafont)
 library(gridExtra)
@@ -6,6 +5,96 @@ library(ggpubr)
 # font_import(prompt = FALSE)
 loadfonts(device = "all")
 dat <- readRDS("/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/long_covid_truncated_120_022425_noinconclusives_fixedexpdates_keepinvitedbothyears_wlag.rds")
+
+dat_resp <- dat %>% filter(!is.na(resolution))
+dat_nresp <- dat %>% filter(is.na(resolution))
+
+table(dat$core_sex)
+round(100*table(dat$core_sex)/nrow(dat), digits = 1)
+table(dat$age_bin)
+round(100*table(dat$age_bin)/nrow(dat), digits = 1)
+table(dat$symp_resp)
+round(100*table(dat$symp_resp)/nrow(dat), digits = 1)
+table(dat$symp_gi)
+round(100*table(dat$symp_gi)/nrow(dat), digits = 1)
+table(dat$symp_tired)
+round(100*table(dat$symp_tired)/nrow(dat), digits = 1)
+table(dat$symp_systemic)
+round(100*table(dat$symp_systemic)/nrow(dat), digits = 1)
+table(dat$comorbid_cardio)
+round(100*table(dat$comorbid_cardio)/nrow(dat), digits = 1)
+table(dat$comorbid_resp)
+round(100*table(dat$comorbid_resp)/nrow(dat), digits = 1)
+table(dat$comorbid_immun)
+round(100*table(dat$comorbid_immun)/nrow(dat), digits = 1)
+table(dat$comorbid_allergy)
+round(100*table(dat$comorbid_allergy)/nrow(dat), digits = 1)
+table(dat$days_since_last_vax_cat)
+round(100*table(dat$days_since_last_vax_cat)/nrow(dat), digits = 1)
+table(dat$viral_load)
+round(100*table(dat$viral_load)/nrow(dat), digits = 1)
+
+table(dat_resp$core_sex)
+round(100*table(dat_resp$core_sex)/nrow(dat_resp), digits = 1)
+table(dat_resp$age_bin)
+round(100*table(dat_resp$age_bin)/nrow(dat_resp), digits = 1)
+table(dat_resp$symp_resp)
+round(100*table(dat_resp$symp_resp)/nrow(dat_resp), digits = 1)
+table(dat_resp$symp_gi)
+round(100*table(dat_resp$symp_gi)/nrow(dat_resp), digits = 1)
+table(dat_resp$symp_tired)
+round(100*table(dat_resp$symp_tired)/nrow(dat_resp), digits = 1)
+table(dat_resp$symp_systemic)
+round(100*table(dat_resp$symp_systemic)/nrow(dat_resp), digits = 1)
+table(dat_resp$comorbid_cardio)
+round(100*table(dat_resp$comorbid_cardio)/nrow(dat_resp), digits = 1)
+table(dat_resp$comorbid_resp)
+round(100*table(dat_resp$comorbid_resp)/nrow(dat_resp), digits = 1)
+table(dat_resp$comorbid_immun)
+round(100*table(dat_resp$comorbid_immun)/nrow(dat_resp), digits = 1)
+table(dat_resp$comorbid_allergy)
+round(100*table(dat_resp$comorbid_allergy)/nrow(dat_resp), digits = 1)
+table(dat_resp$days_since_last_vax_cat)
+round(100*table(dat_resp$days_since_last_vax_cat)/nrow(dat_resp), digits = 1)
+table(dat_resp$viral_load)
+round(100*table(dat_resp$viral_load)/nrow(dat_resp), digits = 1)
+
+
+table(dat_nresp$core_sex)
+round(100*table(dat_nresp$core_sex)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$age_bin)
+round(100*table(dat_nresp$age_bin)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$symp_resp)
+round(100*table(dat_nresp$symp_resp)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$symp_gi)
+round(100*table(dat_nresp$symp_gi)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$symp_tired)
+round(100*table(dat_nresp$symp_tired)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$symp_systemic)
+round(100*table(dat_nresp$symp_systemic)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$comorbid_cardio)
+round(100*table(dat_nresp$comorbid_cardio)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$comorbid_resp)
+round(100*table(dat_nresp$comorbid_resp)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$comorbid_immun)
+round(100*table(dat_nresp$comorbid_immun)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$comorbid_allergy)
+round(100*table(dat_nresp$comorbid_allergy)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$days_since_last_vax_cat)
+round(100*table(dat_nresp$days_since_last_vax_cat)/nrow(dat_nresp), digits = 1)
+table(dat_nresp$viral_load)
+round(100*table(dat_nresp$viral_load)/nrow(dat_nresp), digits = 1)
+
+
+table(dat$age_bin)/nrow(dat)
+table(dat$core_sex)/nrow(dat)
+mean(dat$comorbid_allergy == 1 | dat$comorbid_cardio == 1 | dat$comorbid_immun == 1 | dat$comorbid_resp == 1)
+mean(dat$symp_gi == 1 | dat$symp_systemic == 1 | dat$symp_resp == 1 | dat$symp_tired == 1)
+median(dat$time_event[!is.na(dat$time_event) & dat$time_event < 120])
+quantile(dat$time_event[!is.na(dat$time_event) & dat$time_event < 120], probs = c(0.25, 0.75))
+
+
+
 
 # hisotgram of response times
 p <- dat %>%
@@ -78,10 +167,8 @@ p1 <- fit %>% filter(t <= 90 & t>= 30) %>%
   scale_y_continuous(limits = c(0, 0.3),
                      labels = c("0", "0.05", "0.1", "0.15", "0.2", "0.25", "0.3"),
                      breaks = c(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3))+
-  theme(axis.title = element_text(family = "Times New Roman"),
-        axis.text = element_text(family = "Times New Roman"),
-        strip.text = element_text(family = "Times New Roman"),
-        strip.background = element_blank(),
+  theme(axis.title = element_text(family = "Times New Roman", size = 12),
+        axis.text = element_text(family = "Times New Roman", size = 10),
         axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -99,8 +186,8 @@ p2 <- dat %>%
   scale_y_reverse() +
   xlab("Survey response time (days since positive test)") +
   ylab("Number of respondents") +
-  theme(axis.title = element_text(family = "Times New Roman"),
-        axis.text = element_text(family = "Times New Roman"),
+  theme(axis.title = element_text(family = "Times New Roman", size = 12),
+        axis.text = element_text(family = "Times New Roman", size = 10),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank())
@@ -121,7 +208,7 @@ p_both <- grid.arrange(p1.common.x,
                        heights = c(1, 0.5))
 
 # p_both <- ggarrange(p, p2, nrow = 2)
-ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_022425_noinconclusives_fixedexpdates_keepinvitedbothyears.pdf",
+ggsave(filename = "/Users/cwolock/Dropbox/UW/RESEARCH/paper_supplements/currstat_CIR_supplementary/data_analysis/CIR_results_031025.pdf",
        plot = p_both,
-       device="pdf", width = 9,
+       device="pdf", width = 7,
        height=5, units="in", dpi=300)
